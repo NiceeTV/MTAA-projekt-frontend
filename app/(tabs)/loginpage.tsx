@@ -1,11 +1,12 @@
 import React, {useState} from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import HomePage from './homescreen';
 
-const LoginPage = () => {
+const LoginPage = ({navigation}: any) => {
   return (
     <View style={styles.container}>
       <View style={styles.topHalf}>
-        <Text style={styles.title}>Travel Diary App 2</Text>
+        <Text style={styles.title}>Travel Diary App</Text>
       </View>
       <View style={styles.bottomHalf}>
         <View style={styles.form}>
@@ -18,12 +19,16 @@ const LoginPage = () => {
             placeholder="Password"
             secureTextEntry
           />
-          <TouchableOpacity style={styles.button} onPress={() => {}}>
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')}>
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>
           <Text style={styles.question}>Do not have an account yet?</Text>
-          <TouchableOpacity style={styles.button} onPress={() => {}}>
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')}>
             <Text style={styles.buttonText}>Register</Text>
+          </TouchableOpacity>
+          <Text style={styles.question}>Or</Text>
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')}>
+            <Text style={styles.buttonText}>Continue as Guest</Text>
           </TouchableOpacity>
         </View>
       </View>
