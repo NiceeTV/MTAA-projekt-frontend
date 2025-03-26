@@ -5,7 +5,7 @@ const LoginPage = () => {
   return (
     <View style={styles.container}>
       <View style={styles.topHalf}>
-        <Text style={styles.title}>Travel Diary App</Text>
+        <Text style={styles.title}>Travel Diary App 2</Text>
       </View>
       <View style={styles.bottomHalf}>
         <View style={styles.form}>
