@@ -1,7 +1,10 @@
 import React, {useState} from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { useAppNavigation } from '../navigation';
 
-const HomePage = ({navigation}: any) => {
+const HomePage = () => {
+  const navigation = useAppNavigation();
+  
   return (
     <View style={styles.container}>
       <View style={styles.topHalf}>
@@ -12,10 +15,10 @@ const HomePage = ({navigation}: any) => {
           <TouchableOpacity style={styles.button} onPress={() => {}}>
             <Text style={styles.buttonText}>Trips</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => {}}>
+          <TouchableOpacity style={styles.button} onPress={() => {navigation.navigate("Map")}}>
             <Text style={styles.buttonText}>Map</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => {}}>
+          <TouchableOpacity style={styles.button} onPress={() => {navigation.navigate("Profile")}}>
             <Text style={styles.buttonText}>Profile</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={() => {}}>

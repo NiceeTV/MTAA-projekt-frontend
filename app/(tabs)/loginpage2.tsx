@@ -1,10 +1,7 @@
 import React, {useState} from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
-import { useNavigation, NavigationProp} from '@react-navigation/native';
-import { useAppNavigation } from '../navigation';
 
-const LoginPage = () => {
-  const navigation = useAppNavigation();
+const Register = () => {
   return (
     <View style={styles.container}>
       <View style={styles.topHalf}>
@@ -21,16 +18,13 @@ const LoginPage = () => {
             placeholder="Password"
             secureTextEntry
           />
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Home")}>
-            <Text style={styles.buttonText}>Sign In</Text>
-          </TouchableOpacity>
-          <Text style={styles.question}>Do not have an account yet?</Text>
-          <TouchableOpacity style={styles.button} onPress={() => {navigation.navigate("Register")}}>
-            <Text style={styles.buttonText}>Register</Text>
-          </TouchableOpacity>
-          <Text style={styles.question}>Or</Text>
-          <TouchableOpacity style={styles.button} onPress={() => {navigation.navigate("Home")}}>
-            <Text style={styles.buttonText}>Continue as Guest</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm Password"
+            secureTextEntry
+          />
+          <TouchableOpacity style={styles.button} onPress={() => {}}>
+            <Text style={styles.buttonText}>Sign Up</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -96,4 +90,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default LoginPage;
+export default Register;

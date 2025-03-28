@@ -1,36 +1,22 @@
-/*import { registerRootComponent } from 'expo';
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import LoginPage from './loginpage';
-import HomePage from './homescreen';
-import Navigation from './Navigation';
-
-export default function App() {
-  return <HomePage />;
-}*/
-
-import { registerRootComponent } from 'expo';
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import LoginPage from './loginpage';
+import Register from './loginpage2';
 import HomePage from './homescreen';
 import Maps from './maps';
+import Profile from './profile';
 
 const Stack = createStackNavigator();
 
 const Appl = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Login" component={LoginPage} />
-        <Stack.Screen name="Home" component={HomePage} />
-        <Stack.Screen name="Map" component={Maps} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Stack.Navigator initialRouteName="Login">
+      <Stack.Screen name="Login" component={LoginPage} options={{ headerShown: false }}/>
+      <Stack.Screen name="Register" component={Register}/>
+      <Stack.Screen name="Home" component={HomePage} options={{ headerShown: false }}  />
+      <Stack.Screen name="Map" component={Maps} />
+      <Stack.Screen name="Profile" component={Profile}/>
+    </Stack.Navigator>
   );
 };
-registerRootComponent(Appl);
-
-/*export default Appl;*/
+export default Appl;
