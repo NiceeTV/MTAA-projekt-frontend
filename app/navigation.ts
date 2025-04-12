@@ -5,6 +5,7 @@ export type RootStackParamList = {
   Register: undefined;
   Map: undefined;
   Profile: undefined;
+  TripImagesTest: undefined;
 };
 
 export const useAppNavigation = () => useNavigation<NavigationProp<RootStackParamList>>();

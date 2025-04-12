@@ -5,6 +5,7 @@ import Register from './loginpage2';
 import HomePage from './homescreen';
 import Maps from './maps';
 import Profile from './profile';
+import TripImagesTest from './tripimagestest';
 
 const Stack = createStackNavigator();
 
@@ -16,6 +17,7 @@ const Appl = () => {
       <Stack.Screen name="Home" component={HomePage} options={{ headerShown: false }}  />
       <Stack.Screen name="Map" component={Maps} />
       <Stack.Screen name="Profile" component={Profile}/>
+      <Stack.Screen name="TripImagesTest" component={TripImagesTest}/>
     </Stack.Navigator>
   );
 };

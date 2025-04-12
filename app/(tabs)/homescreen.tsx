@@ -24,6 +24,9 @@ const HomePage = () => {
           <TouchableOpacity style={styles.button} onPress={() => {}}>
             <Text style={styles.buttonText}>Notifications</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={() => {navigation.navigate("TripImagesTest")}}>
+            <Text style={styles.buttonText}>TripImagesTest</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
