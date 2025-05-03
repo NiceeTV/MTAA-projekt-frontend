@@ -6,6 +6,7 @@ import HomePage from './homescreen';
 import Maps from './maps';
 import Profile from './profile';
 import TripImagesTest from './tripimagestest';
+import Trip from './trips'
 
 const Stack = createStackNavigator();
 
@@ -18,6 +19,7 @@ const Appl = () => {
       <Stack.Screen name="Map" component={Maps} />
       <Stack.Screen name="Profile" component={Profile}/>
       <Stack.Screen name="TripImagesTest" component={TripImagesTest}/>
+      <Stack.Screen name="Trips" component={Trip} />
     </Stack.Navigator>
   );
 };
