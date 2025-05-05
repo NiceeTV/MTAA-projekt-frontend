@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 
-const Notifications = () => {
+const Marker = () => {
   return (
     <View>
-      <Text>Notifications</Text>
+      <Text>Marker name</Text>
     </View>
   );
 };
 
-export default Notifications;
+export default Marker;

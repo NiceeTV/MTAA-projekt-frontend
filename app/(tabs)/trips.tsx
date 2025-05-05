@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 
-const RegisterPage = () => {
-  return (
-    <View>
-      <Text>Register Page</Text>
-    </View>
-  );
+const Trips = () => {
+  return (
+    <View>
+      <Text>My trips</Text>
+    </View>
+  );
 };
 
-export default RegisterPage;
+export default Trips;

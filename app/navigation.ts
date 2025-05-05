@@ -10,6 +10,18 @@ export type RootStackParamList = {
   Trips: undefined;
   AddMarker: undefined;
   TripImagesTest: undefined;
+  AddFriend: undefined;
+  AddTrip: undefined;
+  Chat: undefined;
+  Friends: undefined;
+  Marker: undefined;
+  Markers: undefined;
+  ProfileFriend: undefined;
+  Trip: undefined;
+  TripsFriend: undefined;
+  StatisticsFriend: undefined;
+  Notifications: undefined;
+  Statistics: undefined;
 };
 
 export const useAppNavigation = () => 

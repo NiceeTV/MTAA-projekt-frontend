@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 
-const Notifications = () => {
+const ProfileFriend = () => {
   return (
     <View>
-      <Text>Notifications</Text>
+      <Text>Friend's Profile</Text>
     </View>
   );
 };
 
-export default Notifications;
+export default ProfileFriend;
