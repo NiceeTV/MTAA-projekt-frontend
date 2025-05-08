@@ -5,6 +5,9 @@ import MapView, { Marker, MapPressEvent, LatLng } from 'react-native-maps';
 import * as Location from 'expo-location';
 import axios from "axios";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { AuthService } from '@/services/auth';
+import { api } from '@/api/client';
+
 import Constants from 'expo-constants';
 
 
@@ -12,6 +15,8 @@ import Constants from 'expo-constants';
 const Maps = () => {
 	const navigation = useAppNavigation()
 
+
+	const [myMarkers, setMyMarkers] = useState<any[]>([]);
 
 	const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
@@ -38,6 +43,32 @@ const Maps = () => {
 
 
 	const GOOGLE_MAPS_API_KEY = Constants.expoConfig?.extra?.googleMapsApiKey || '';
+
+
+	useEffect(() => {
+		const loadMarkers = async () => {
+			try {
+				const user_id = await AuthService.getUserIdFromToken();
+
+				const response = await api.get(`/markers/getMarkersByID/${user_id}`);
+
+				// Ak odpoveď obsahuje markery, uložíme ich do stavu
+				if (response && response.length > 0) {
+					setMyMarkers(response);
+				} else {
+					Alert.alert('Žiadne markery', 'Pre tohto používateľa neexistujú žiadne markery.');
+				}
+			} catch (error) {
+				console.error('Chyba pri načítaní markerov:', error);
+				Alert.alert('Chyba', 'Nepodarilo sa načítať markery.');
+			}
+		};
+
+		loadMarkers();
+	}, []);
+
+
+
 
 
 	useEffect(() => {
@@ -122,6 +153,11 @@ const Maps = () => {
 	const handleMapPress = (event: MapPressEvent) => {
 		if (isSelectingFromAutocomplete) return;
 
+		if (selectedPoiInfo) {
+			handleDeleteMarker();
+			setSelectedPoiInfo(null);
+		}
+
 		const { coordinate } = event.nativeEvent; // Získame súradnice kliknutia
 		handleAddMarker(coordinate);
 	};
@@ -142,9 +178,7 @@ const Maps = () => {
 
 			Keyboard.dismiss();
 
-
 			setTimeout(() => {
-				// Uistíme sa, že máme správnu referenciu na mapu pred animovaním
 				if (mapRef.current) {
 					mapRef.current.animateToRegion(newRegion, 1000);
 				}
@@ -192,7 +226,7 @@ const Maps = () => {
 								onPress={handleMapPress}
 								pointerEvents={isSelectingFromAutocomplete ? 'none' : 'auto'}
 								onPoiClick={(e) => {
-									const { placeId, name, coordinate } = e.nativeEvent;
+									const { name, coordinate } = e.nativeEvent;
 									setSelectedPoiInfo({ name, coordinate });
 									handleDeleteMarker();
 
@@ -200,7 +234,7 @@ const Maps = () => {
 										handleAddMarker(coordinate);
 									}
 
-									setCanMarker(false);
+
 									console.log('Kliknuté POI:', name, coordinate);
 								}}
 							>
@@ -214,6 +248,15 @@ const Maps = () => {
 										title="Moja poloha"
 									/>
 								)}
+								{myMarkers.map((marker, index) => (
+									<Marker
+										key={index}
+										coordinate={{ latitude: marker.x_pos, longitude: marker.y_pos }}
+										title={marker.marker_title}
+										description={marker.marker_description}
+										pinColor="green"
+									/>
+								))}
 							</MapView>
 
 						) : (
@@ -226,7 +269,6 @@ const Maps = () => {
 									onPress={() => {
 										setSelectedPoiInfo(null);
 										handleDeleteMarker();
-										setCanMarker(true);
 									}}
 								>
 									<Text style={styles.closeButton}>Zavrieť</Text>
@@ -247,7 +289,6 @@ const Maps = () => {
 										name: poiTitle,
 									});
 								} else {
-									// Ak selectedPoiInfo je null alebo marker nie je nastavený, môžeš pridať nejakú logiku tu
 									console.log("Invalid marker or POI information");
 								}
 							}}

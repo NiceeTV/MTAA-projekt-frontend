@@ -1,5 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import { api } from '@/api/client';
+import { jwtDecode } from 'jwt-decode';
 
 const AUTH_TOKEN_KEY = 'auth_token';
 
@@ -28,6 +29,26 @@ export const AuthService = {
         } catch (error) {
             console.error('Register error:', error);
             throw error;
+        }
+    },
+
+    async getUserIdFromToken() {
+        interface MyJwtPayload {
+            userId: number;
+            username: string;
+            exp: number;
+            iat: number;
+        }
+
+        try {
+            const token = await this.getToken();
+            if (token) {
+                const decoded = jwtDecode<MyJwtPayload>(token);
+                return decoded.userId || null;
+            }
+        } catch (error) {
+            console.error('Chyba pri dekódovaní tokenu:', error);
+            return null;
         }
     },
 
