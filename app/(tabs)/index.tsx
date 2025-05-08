@@ -1,7 +1,7 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import LoginPage from './loginpage';
-import Register from './loginpage2';
+import Register from './register';
 import HomePage from './homescreen';
 import Maps from './maps';
 import Profile from './profile';
@@ -20,13 +20,36 @@ import Trip from './trip';
 import TripsFriend from './tripsfriend';
 import Notifications from './notifications';
 import Statistics from './statistics';
+import {AuthService} from "@/services/auth";
+import {ActivityIndicator, View} from "react-native";
 
 
 const Stack = createStackNavigator();
 
 const Appl = () => {
-  return (
-    <Stack.Navigator initialRouteName="Login">
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // Stav prihlásenia
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const checkLoggedInStatus = async () => {
+            const loggedIn = await AuthService.isLoggedIn(); // Skontroluj, či je používateľ prihlásený
+            setIsLoggedIn(loggedIn); // Nastav stav podľa toho, či je prihlásený
+            setIsLoading(false); // Zastav načítavanie
+        };
+
+        checkLoggedInStatus(); // Spusti kontrolu pri načítaní komponentu
+    }, []);
+
+    if (isLoading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+        );
+    }
+
+    return (
+    <Stack.Navigator initialRouteName={isLoggedIn ? "Home" : "Login"}>
       <Stack.Screen name="Login" component={LoginPage} options={{ headerShown: false }}/>
       <Stack.Screen name="Register" component={Register}/>
       <Stack.Screen name="Home" component={HomePage} options={{ headerShown: false }}  />

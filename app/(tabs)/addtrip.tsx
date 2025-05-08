@@ -4,14 +4,14 @@ import { useAppNavigation } from '../navigation';
 
 const AddTrip = () => {
     const navigation = useAppNavigation();
-  return (
-    <View>
-      <Text>Create Trip</Text>
-        <TouchableOpacity onPress={() => {navigation.navigate("Trips")}}>
-                            <Text>Create Trip</Text>
-                          </TouchableOpacity>
-    </View>
-  );
+	 return (
+	 	 <View>
+            <Text>Create Trip</Text>
+            <TouchableOpacity onPress={() => {navigation.navigate("Trips")}}>
+                <Text>Create Trip</Text>
+            </TouchableOpacity>
+	 	 </View>
+	 );
 };
 
 export default AddTrip;

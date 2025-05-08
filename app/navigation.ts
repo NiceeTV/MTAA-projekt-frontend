@@ -2,13 +2,13 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
 export type RootStackParamList = {
-  Login: undefined;
-  Home: undefined;
-  Register: undefined;
-  Map: undefined;
-  Profile: undefined;
-  Trips: undefined;
-  AddMarker: undefined;
+  Login: undefined;
+  Home: undefined;
+  Register: undefined;
+  Map: undefined;
+  Profile: undefined;
+  Trips: undefined;
+  AddMarker: undefined;
   TripImagesTest: undefined;
   AddFriend: undefined;
   AddTrip: undefined;
@@ -25,4 +25,4 @@ export type RootStackParamList = {
 };
 
 export const useAppNavigation = () => 
-  useNavigation<StackNavigationProp<RootStackParamList>>();
+	 useNavigation<StackNavigationProp<RootStackParamList>>();
