@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {View, TextInput, FlatList, Text, StyleSheet, TouchableOpacity, Dimensions, Button, Alert} from 'react-native';
+import React, {useEffect, useState, useRef} from 'react';
+import {View, TextInput, FlatList, Text, StyleSheet, TouchableOpacity, Dimensions, Button, Alert, KeyboardAvoidingView, Keyboard} from 'react-native';
 import { useAppNavigation } from '../navigation';
 import MapView, { Marker, MapPressEvent, LatLng  } from 'react-native-maps';
 import MapEvent from "react-native-maps";
@@ -7,12 +7,16 @@ import { Ionicons } from '@expo/vector-icons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import * as Location from 'expo-location';
 import axios from "axios";
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const Maps = () => {
 	const navigation = useAppNavigation()
 
 
+	const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
 	const [userLocation, setUserLocation] = useState<LatLng | null>(null);
 	const [marker, setMarker] = useState<LatLng | null>(null);
@@ -29,6 +33,36 @@ const Maps = () => {
 	const [error, setError] = useState<string | null>(null);
 
 	const [locationPermission, setLocationPermission] = useState<boolean | null>(null);
+	const mapRef = useRef<MapView | null>(null);
+	const [isSelectingFromAutocomplete, setIsSelectingFromAutocomplete] = useState(false);
+
+
+
+	const GOOGLE_MAPS_API_KEY = Constants.expoConfig?.extra?.googleMapsApiKey || '';
+
+
+	useEffect(() => {
+		const keyboardDidShowListener = Keyboard.addListener(
+			'keyboardDidShow',
+			() => {
+				setKeyboardVisible(true);
+			}
+		);
+		const keyboardDidHideListener = Keyboard.addListener(
+			'keyboardDidHide',
+			() => {
+				setKeyboardVisible(false);
+			}
+		);
+
+		return () => {
+			keyboardDidShowListener.remove();
+			keyboardDidHideListener.remove();
+		};
+	}, []);
+
+
+
 
 	useEffect(() => {
 		const getLocation = async () => {
@@ -72,6 +106,7 @@ const Maps = () => {
 	}, []);
 
 
+
 	const handleAddMarker = () => {
 		setMarker({
 			latitude: initialRegion.latitude,
@@ -84,49 +119,112 @@ const Maps = () => {
 	};
 
 	const handleMapPress = (event: MapPressEvent) => {
+		if (isSelectingFromAutocomplete) return;
+
 		const { coordinate } = event.nativeEvent; // Získame súradnice kliknutia
 		setMarker(coordinate); // Nastavíme marker na tieto súradnice
 	};
 
-	 return (
-		 <View style={styles.container}>
-			 <TextInput
-				 placeholder="Search location"
-				 style={styles.searchBar}
-			 />
-			 <View style={styles.mapContainer}>
-				 {region ? (
-					 <MapView
-						 style={styles.map}
-						 region={region} // Nastavenie mapy na aktuálnu polohu
-						 onPress={handleMapPress} // Zavoláme handleMapPress pri kliknutí na mapu
-					 >
-						 {marker && (
-							 <Marker coordinate={marker} />
-						 )}
-						 {userLocation && userLocation.latitude && userLocation.longitude && (
-							 <Marker
-								 coordinate={userLocation}
-								 pinColor="white" // Modrý marker
-								 title="Moja poloha"
-							 />
-						 )}
-					 </MapView>
-				 ) : (
-					 <Text style={styles.loadingText}>Loading your location...</Text> // Zobrazenie, kým sa nenačíta lokalita
-				 )}
-			 </View>
-			 <View style={styles.buttonContainer}>
-				 <TouchableOpacity style={styles.button} onPress={handleAddMarker}>
-					 <Text style={styles.buttonText}>Add marker</Text>
-				 </TouchableOpacity>
-				 <TouchableOpacity style={styles.button} onPress={handleDeleteMarker}>
-					 <Text style={styles.buttonText}>Delete marker</Text>
-				 </TouchableOpacity>
-			 </View>
-			 {error && <Text style={styles.errorText}>{error}</Text>} {/* Zobrazenie chyby, ak nastane */}
-		 </View>
-	 );
+	const handlePlaceSelect = async (data: any, details: any) => {
+		setIsSelectingFromAutocomplete(true);
+
+		if (details && details.geometry && details.geometry.location) {
+			const { lat, lng } = details.geometry.location;
+			const newRegion = {
+				latitude: lat,
+				longitude: lng,
+				latitudeDelta: 0.01,
+				longitudeDelta: 0.01,
+			};
+			setMarker({
+				latitude: lat,
+				longitude: lng,
+			});
+			setInitialRegion(newRegion);
+
+			Keyboard.dismiss();
+
+			console.log("presuvame sa na ", newRegion.latitude, newRegion.longitude, mapRef);
+
+			setTimeout(() => {
+				// Uistíme sa, že máme správnu referenciu na mapu pred animovaním
+				if (mapRef.current) {
+					mapRef.current.animateToRegion(newRegion, 1000);
+				}
+				setIsSelectingFromAutocomplete(false);
+			}, 300);
+		} else {
+			Alert.alert('Chyba', 'Nepodarilo sa získať súradnice vybraného miesta.');
+			setIsSelectingFromAutocomplete(false);
+		}
+	};
+
+
+	return (
+		<View style={styles.container}>
+			<View>
+				<GooglePlacesAutocomplete
+					placeholder="Hľadať miesto"
+					onPress={handlePlaceSelect}
+					fetchDetails={true}
+					query={{
+						key: GOOGLE_MAPS_API_KEY,
+						language: 'sk',
+						components: 'country:sk',
+					}}
+					styles={{
+						container: styles.searchBarContainer,
+						textInput: styles.searchBar,
+						listView: styles.autocompleteList,
+						description: styles.description,
+					}}
+					enablePoweredByContainer={false}
+					debounce={200}
+					onFail={(error) => console.error('Autocomplete error:', error)}
+				/>
+			</View>
+
+			{(isSelectingFromAutocomplete || !isKeyboardVisible) ? (
+				<>
+					<View style={styles.mapContainer}>
+						{region ? (
+							<MapView
+								ref={mapRef}
+								style={styles.map}
+								region={region}
+								onPress={handleMapPress}
+								pointerEvents={isSelectingFromAutocomplete ? 'none' : 'auto'}
+							>
+								{marker && (
+									<Marker coordinate={marker} />
+								)}
+								{userLocation?.latitude && userLocation?.longitude && (
+									<Marker
+										coordinate={userLocation}
+										pinColor="#40C4FF"
+										title="Moja poloha"
+									/>
+								)}
+							</MapView>
+						) : (
+							<Text style={styles.loadingText}>Loading your location...</Text>
+						)}
+					</View>
+					<View style={styles.buttonContainer}>
+						<TouchableOpacity style={styles.button} onPress={handleAddMarker}>
+							<Text style={styles.buttonText}>Add marker</Text>
+						</TouchableOpacity>
+						<TouchableOpacity style={styles.button} onPress={handleDeleteMarker}>
+							<Text style={styles.buttonText}>Delete marker</Text>
+						</TouchableOpacity>
+					</View>
+				</>
+			) : null}
+			{typeof error === 'string' && !!error ? (
+				<Text style={styles.errorText}>{error}</Text>
+			) : null}
+		</View>
+	);
 };
 
 const styles = StyleSheet.create({
@@ -136,14 +234,7 @@ const styles = StyleSheet.create({
 		backgroundColor: '#fff',
 		justifyContent: 'space-between', // Zaručuje, že tlačidlá sú na spodnej časti
 	},
-	searchBar: {
-		height: 45,
-		borderWidth: 1,
-		borderColor: '#ccc',
-		borderRadius: 10,
-		paddingHorizontal: 15,
-		marginBottom: 20,
-	},
+
 	mapContainer: {
 		flex: 1, // Mapa teraz zaberie čo najviac miesta
 		borderRadius: 5,
@@ -159,7 +250,7 @@ const styles = StyleSheet.create({
 	buttonContainer: {
 		width: '100%',
 		gap: 10,
-		marginBottom: 20,
+
 	},
 	button: {
 		flexDirection: 'row',
@@ -169,9 +260,9 @@ const styles = StyleSheet.create({
 
 		paddingLeft: 10,
 		paddingRight: 10,
-		borderRadius: 20,
+		borderRadius: 15,
 		backgroundColor: 'white',
-		justifyContent: 'space-between',
+		justifyContent: 'center',
 		alignItems: 'center',
 	},
 	buttonText: {
@@ -190,7 +281,38 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		textAlign: 'center',
 		marginTop: 10,
-	}
+	},
+
+	searchBarContainer: {
+		width: '100%',
+		flex: 1,
+		marginBottom: 50,
+	},
+	searchBar: {
+		height: 40,
+		borderWidth: 1,
+		borderColor: '#ccc',
+		borderRadius: 8,
+		paddingHorizontal: 10,
+		fontSize: 16,
+		backgroundColor: '#fff',
+	},
+	autocompleteList: {
+		position: 'absolute',
+		top: 40,
+		left: 0,
+		right: 0,
+		backgroundColor: '#fff',
+		borderWidth: 1,
+		borderRadius: 5,
+		borderColor: '#ccc',
+		zIndex: 20,
+	},
+	description: {
+		fontSize: 14,
+		color: '#333',
+		paddingVertical: 5,
+	},
 });
 
 export default Maps;

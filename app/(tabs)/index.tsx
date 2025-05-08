@@ -22,7 +22,7 @@ import Notifications from './notifications';
 import Statistics from './statistics';
 import {AuthService} from "@/services/auth";
 import {ActivityIndicator, View} from "react-native";
-
+import 'react-native-get-random-values';
 
 const Stack = createStackNavigator();
 

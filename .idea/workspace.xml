@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="287952f9-9174-4426-a9e8-88ccfd44a638" name="Changes" comment="pridaná mapa a ikonky na homescreen">
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.expo/types/router.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/.expo/types/router.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/app.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/homescreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/homescreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/maps.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/maps.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="TypeScript JSX File" />
+        <option value="JavaScript File" />
+        <option value="TypeScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;NiceeTV&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/NiceeTV/MTAA-projekt-frontend/",
+    "accountId": "c6d8e580-da2b-48eb-a910-ade7163e5f3b"
+  }
+}]]></component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="2vdZGy79zeHRqOVlnLHgudIhC3I" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/matze/CLionProjects/mtaa-frontend/icons",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\WebStorm 2025.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\matze\CLionProjects\mtaa-frontend\icons" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\matze\CLionProjects\mtaa-frontend\app\(tabs)" />
+      <recent name="C:\Users\matze\CLionProjects\mtaa-frontend\app" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-f27c65a3e318-JavaScript-WS-251.23774.424" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="287952f9-9174-4426-a9e8-88ccfd44a638" name="Changes" comment="" />
+      <created>1744476819403</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1744476819403</updated>
+      <workItem from="1744476820461" duration="933000" />
+      <workItem from="1744477841337" duration="1082000" />
+      <workItem from="1744479164135" duration="257000" />
+      <workItem from="1744479599075" duration="625000" />
+      <workItem from="1744480369329" duration="58000" />
+      <workItem from="1744480816095" duration="1608000" />
+      <workItem from="1744482610970" duration="81000" />
+      <workItem from="1744633515448" duration="21000" />
+      <workItem from="1744634049259" duration="12000" />
+      <workItem from="1746642779309" duration="11475000" />
+      <workItem from="1746690927062" duration="28256000" />
+    </task>
+    <task id="LOCAL-00001" summary="pridanie fetchovanie obrázkov z backendu, treba si pridať obrázky na backend aby to išlo a v tripimagestest.tsx zadať svoju host ip adresu rovnakú ako na backende, zobrazuje obrázky">
+      <option name="closed" value="true" />
+      <created>1744482685142</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1744482685142</updated>
+    </task>
+    <task id="LOCAL-00002" summary="login register, automaticke prihlasenie ak mam token, krajší homescreen, chyba">
+      <option name="closed" value="true" />
+      <created>1746697562669</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1746697562669</updated>
+    </task>
+    <task id="LOCAL-00003" summary="opravená chyba">
+      <option name="closed" value="true" />
+      <created>1746701716357</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1746701716357</updated>
+    </task>
+    <task id="LOCAL-00004" summary="pridaná mapa a ikonky na homescreen">
+      <option name="closed" value="true" />
+      <created>1746708928297</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1746708928297</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="pridanie fetchovanie obrázkov z backendu, treba si pridať obrázky na backend aby to išlo a v tripimagestest.tsx zadať svoju host ip adresu rovnakú ako na backende, zobrazuje obrázky" />
+    <MESSAGE value="login register, automaticke prihlasenie ak mam token, krajší homescreen, chyba" />
+    <MESSAGE value="opravená chyba" />
+    <MESSAGE value="pridaná mapa a ikonky na homescreen" />
+    <option name="LAST_COMMIT_MESSAGE" value="pridaná mapa a ikonky na homescreen" />
+  </component>
+</project>

@@ -1,42 +1,39 @@
 import React, {useState} from 'react';
 import { View, Text, Image, useColorScheme, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { useAppNavigation } from '../navigation';
-
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import Feather from '@expo/vector-icons/Feather';
 
 
 const HomePage = () => {
   const navigation = useAppNavigation();
   
   return (
-    <View style={styles.container}>npm uninstall axios
+    <View style={styles.container}>
       <View style={styles.bottomHalf}>
         <Text style={styles.title}>Travel Diary App</Text>
         <View style={styles.form}>
           <TouchableOpacity style={styles.button} onPress={() => {}}>
             <Text style={styles.buttonText}>Trips</Text>
-            <Image
-                source={require('@/icons/trip_icon.png')}
-
-                style={{ width: 35, height: 35, marginRight: 5 }}
-            />
+            <FontAwesome5 name="route" size={24} color="black" style={{ marginRight: 5 }}/>
 
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={() => {navigation.navigate("Map")}}>
             <Text style={styles.buttonText}>Map</Text>
-            <Image
-                source={require('@/icons/map_icon.png')}
-                style={{ width: 35, height: 35, marginRight: 5 }}
-            />
+
+            <Feather name="map" size={24} color="black" style={{ marginRight: 3 }}/>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={() => {navigation.navigate("Profile")}}>
             <Text style={styles.buttonText}>Profile</Text>
 
-
+            <Ionicons name="person-circle" size={30} color="black" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={() => {}}>
             <Text style={styles.buttonText}>Notifications</Text>
 
-
+            <Ionicons name="notifications" size={30} color="black" />
           </TouchableOpacity>
         </View>
       </View>
