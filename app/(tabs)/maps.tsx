@@ -294,7 +294,6 @@ const styles = StyleSheet.create({
 	buttonContainer: {
 		width: '100%',
 		gap: 10,
-
 	},
 	button: {
 		flexDirection: 'row',

@@ -106,30 +106,32 @@ const AddMarker = ({ route }: any) => {
             <Text style={styles.selectedDate}>Vybraný dátum: {formatDate(date)}</Text>
         )}
 
-        <SafeAreaProvider>
-          <View style={{ alignItems: 'center' }}>
-            <Button onPress={() => setOpen(true)} uppercase={false} mode="outlined">
-              Pick single date
-            </Button>
-            <DatePickerModal
-                locale="en"
-                mode="single"
-                visible={open}
-                onDismiss={onDismissSingle}
-                date={date}
-                onConfirm={onConfirmSingle}
-            />
-          </View>
-        </SafeAreaProvider>
 
 
+        <View style={styles.btnContainer}>
+          <SafeAreaProvider>
+            <View style={{ alignItems: 'center'}}>
+              <Button style={styles.button} onPress={() => setOpen(true)} uppercase={false} mode="outlined">
+                <Text style={styles.submitButtonText}>Vyber dátum</Text>
+              </Button>
+              <DatePickerModal
+                  locale="en"
+                  mode="single"
+                  visible={open}
+                  onDismiss={onDismissSingle}
+                  date={date}
+                  onConfirm={onConfirmSingle}
+              />
+            </View>
+          </SafeAreaProvider>
 
-        {/* Tlačidlo na odoslanie */}
-        <TouchableOpacity style={styles.submitButton}>
-          <Text style={styles.submitButtonText}>Odoslať</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.submitButtonText}>Odoslať</Text>
+          </TouchableOpacity>
+        </View>
+
+
       </View>
-
   );
 };
 
@@ -166,14 +168,16 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 16,
   },
-  dateButton: {
+  dateBtn: {
     backgroundColor: '#40C4FF',
     padding: 10,
     borderRadius: 8,
     marginBottom: 15,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   dateButtonText: {
     color: '#fff',
     fontSize: 16,
@@ -183,7 +187,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     color: '#333',
   },
-  submitButton: {
+  button: {
     height: 50,
     borderColor: '#333',
     borderWidth: 2,
@@ -197,6 +201,12 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     fontSize: 18,
+    color: 'black',
+  },
+  btnContainer: {
+    width: '100%',
+    gap: 10,
+    height: 120,
   },
 });
 
