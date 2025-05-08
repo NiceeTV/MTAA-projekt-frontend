@@ -8,7 +8,7 @@ const HomePage = () => {
   const navigation = useAppNavigation();
   
   return (
-    <View style={styles.container}>
+    <View style={styles.container}>npm uninstall axios
       <View style={styles.bottomHalf}>
         <Text style={styles.title}>Travel Diary App</Text>
         <View style={styles.form}>
