@@ -8,7 +8,7 @@ export type RootStackParamList = {
   Map: undefined;
   Profile: undefined;
   Trips: undefined;
-  AddMarker: undefined;
+  AddMarker: { latitude: number; longitude: number; name: string };
   TripImagesTest: undefined;
   AddFriend: undefined;
   AddTrip: undefined;

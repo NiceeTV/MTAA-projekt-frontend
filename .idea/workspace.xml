@@ -9,13 +9,12 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="287952f9-9174-4426-a9e8-88ccfd44a638" name="Changes" comment="pridaná mapa a ikonky na homescreen">
+    <list default="true" id="287952f9-9174-4426-a9e8-88ccfd44a638" name="Changes" comment="mapa aj vyhladavanie miest na nej">
       <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.expo/types/router.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/.expo/types/router.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/app.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/homescreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/homescreen.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/addmarker.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/addmarker.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(tabs)/maps.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/maps.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/navigation.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/navigation.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
@@ -119,7 +118,7 @@
       <workItem from="1744633515448" duration="21000" />
       <workItem from="1744634049259" duration="12000" />
       <workItem from="1746642779309" duration="11475000" />
-      <workItem from="1746690927062" duration="28256000" />
+      <workItem from="1746690927062" duration="35538000" />
     </task>
     <task id="LOCAL-00001" summary="pridanie fetchovanie obrázkov z backendu, treba si pridať obrázky na backend aby to išlo a v tripimagestest.tsx zadať svoju host ip adresu rovnakú ako na backende, zobrazuje obrázky">
       <option name="closed" value="true" />
@@ -153,7 +152,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746708928297</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="mapa aj vyhladavanie miest na nej">
+      <option name="closed" value="true" />
+      <created>1746724216838</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1746724216838</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -164,6 +171,7 @@
     <MESSAGE value="login register, automaticke prihlasenie ak mam token, krajší homescreen, chyba" />
     <MESSAGE value="opravená chyba" />
     <MESSAGE value="pridaná mapa a ikonky na homescreen" />
-    <option name="LAST_COMMIT_MESSAGE" value="pridaná mapa a ikonky na homescreen" />
+    <MESSAGE value="mapa aj vyhladavanie miest na nej" />
+    <option name="LAST_COMMIT_MESSAGE" value="mapa aj vyhladavanie miest na nej" />
   </component>
 </project>

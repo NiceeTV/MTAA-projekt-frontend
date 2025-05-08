@@ -1,15 +1,12 @@
 import React, {useEffect, useState, useRef} from 'react';
-import {View, TextInput, FlatList, Text, StyleSheet, TouchableOpacity, Dimensions, Button, Alert, KeyboardAvoidingView, Keyboard} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Alert, Keyboard} from 'react-native';
 import { useAppNavigation } from '../navigation';
-import MapView, { Marker, MapPressEvent, LatLng  } from 'react-native-maps';
-import MapEvent from "react-native-maps";
-import { Ionicons } from '@expo/vector-icons';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import MapView, { Marker, MapPressEvent, LatLng } from 'react-native-maps';
 import * as Location from 'expo-location';
 import axios from "axios";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import Constants from 'expo-constants';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 
 const Maps = () => {
@@ -35,6 +32,8 @@ const Maps = () => {
 	const [locationPermission, setLocationPermission] = useState<boolean | null>(null);
 	const mapRef = useRef<MapView | null>(null);
 	const [isSelectingFromAutocomplete, setIsSelectingFromAutocomplete] = useState(false);
+	const [selectedPoiInfo, setSelectedPoiInfo] = useState<{ name: string, coordinate: LatLng } | null>(null);
+	const [canMarker, setCanMarker] = useState(true);
 
 
 
@@ -107,11 +106,13 @@ const Maps = () => {
 
 
 
-	const handleAddMarker = () => {
-		setMarker({
-			latitude: initialRegion.latitude,
-			longitude: initialRegion.longitude,
-		});
+	const handleAddMarker = (coords: LatLng) => {
+		if (canMarker) {
+			setMarker({
+				latitude: coords.latitude,
+				longitude: coords.longitude,
+			});
+		}
 	};
 
 	const handleDeleteMarker = () => {
@@ -122,7 +123,7 @@ const Maps = () => {
 		if (isSelectingFromAutocomplete) return;
 
 		const { coordinate } = event.nativeEvent; // Získame súradnice kliknutia
-		setMarker(coordinate); // Nastavíme marker na tieto súradnice
+		handleAddMarker(coordinate);
 	};
 
 	const handlePlaceSelect = async (data: any, details: any) => {
@@ -136,15 +137,11 @@ const Maps = () => {
 				latitudeDelta: 0.01,
 				longitudeDelta: 0.01,
 			};
-			setMarker({
-				latitude: lat,
-				longitude: lng,
-			});
+
 			setInitialRegion(newRegion);
 
 			Keyboard.dismiss();
 
-			console.log("presuvame sa na ", newRegion.latitude, newRegion.longitude, mapRef);
 
 			setTimeout(() => {
 				// Uistíme sa, že máme správnu referenciu na mapu pred animovaním
@@ -194,6 +191,18 @@ const Maps = () => {
 								region={region}
 								onPress={handleMapPress}
 								pointerEvents={isSelectingFromAutocomplete ? 'none' : 'auto'}
+								onPoiClick={(e) => {
+									const { placeId, name, coordinate } = e.nativeEvent;
+									setSelectedPoiInfo({ name, coordinate });
+									handleDeleteMarker();
+
+									if (coordinate) {
+										handleAddMarker(coordinate);
+									}
+
+									setCanMarker(false);
+									console.log('Kliknuté POI:', name, coordinate);
+								}}
 							>
 								{marker && (
 									<Marker coordinate={marker} />
@@ -206,15 +215,50 @@ const Maps = () => {
 									/>
 								)}
 							</MapView>
+
 						) : (
 							<Text style={styles.loadingText}>Loading your location...</Text>
 						)}
+						{selectedPoiInfo && (
+							<View style={styles.poiInfoPanel}>
+								<Text style={styles.poiText}>{selectedPoiInfo.name}</Text>
+								<TouchableOpacity
+									onPress={() => {
+										setSelectedPoiInfo(null);
+										handleDeleteMarker();
+										setCanMarker(true);
+									}}
+								>
+									<Text style={styles.closeButton}>Zavrieť</Text>
+								</TouchableOpacity>
+							</View>
+						)}
 					</View>
 					<View style={styles.buttonContainer}>
-						<TouchableOpacity style={styles.button} onPress={handleAddMarker}>
+						<TouchableOpacity
+							style={[styles.button, { opacity: marker ? 1 : 0.5 }]}
+							disabled={!marker}
+							onPress={() => {
+								const poiTitle = selectedPoiInfo ? selectedPoiInfo.name : '';
+								if (marker) {
+									navigation.navigate("AddMarker", {
+										latitude: marker.latitude,
+										longitude: marker.longitude,
+										name: poiTitle,
+									});
+								} else {
+									// Ak selectedPoiInfo je null alebo marker nie je nastavený, môžeš pridať nejakú logiku tu
+									console.log("Invalid marker or POI information");
+								}
+							}}
+							>
 							<Text style={styles.buttonText}>Add marker</Text>
 						</TouchableOpacity>
-						<TouchableOpacity style={styles.button} onPress={handleDeleteMarker}>
+						<TouchableOpacity style={[styles.button, { opacity: marker ? 1 : 0.5 }]} disabled={!marker} onPress={() => {
+							handleDeleteMarker();
+							setSelectedPoiInfo(null);
+							setCanMarker(true);
+						}}>
 							<Text style={styles.buttonText}>Delete marker</Text>
 						</TouchableOpacity>
 					</View>
@@ -313,6 +357,24 @@ const styles = StyleSheet.create({
 		color: '#333',
 		paddingVertical: 5,
 	},
+	poiInfoPanel: {
+		position: 'absolute',
+		bottom: 30,
+		left: 20,
+		right: 20,
+		backgroundColor: 'white',
+		padding: 15,
+		borderRadius: 10,
+		elevation: 5,
+	},
+	poiText: {
+		fontSize: 16,
+		fontWeight: '500',
+	},
+	closeButton: {
+		color: 'blue',
+		marginTop: 10,
+	}
 });
 
 export default Maps;
