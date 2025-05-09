@@ -144,10 +144,10 @@ const Profile = () => {
       </View>
 
       <View style={themedStyles.bottomSection}>
-        <TouchableOpacity style={themedStyles.button} onPress={() => {}}>
+        <TouchableOpacity style={themedStyles.button} onPress={() => {navigation.navigate("Friends")}}>
           <Text style={themedStyles.buttonText}>Friends</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={themedStyles.button} onPress={() => {}}>
+        <TouchableOpacity style={themedStyles.button} onPress={() => {navigation.navigate("Statistics")}}>
           <Text style={themedStyles.buttonText}>Statistics</Text>
         </TouchableOpacity>
         <TouchableOpacity style={themedStyles.button} onPress={toggleDarkMode}>
