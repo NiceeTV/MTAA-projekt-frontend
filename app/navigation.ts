@@ -14,7 +14,7 @@ export type RootStackParamList = {
   AddTrip: undefined;
   Chat: undefined;
   Friends: undefined;
-  Marker: undefined;
+  Marker: { marker_id: string };
   Markers: undefined;
   ProfileFriend: undefined;
   Trip: undefined;

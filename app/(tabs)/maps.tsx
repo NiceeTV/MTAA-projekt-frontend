@@ -30,7 +30,6 @@ const Maps = () => {
 	});
 
 
-
 	const [region, setRegion] = useState<any>(null); // Bude obsahovať aktuálnu polohu
 	const [error, setError] = useState<string | null>(null);
 
@@ -50,7 +49,9 @@ const Maps = () => {
 			try {
 				const user_id = await AuthService.getUserIdFromToken();
 
-				const response = await api.get(`/markers/getMarkersByID/${user_id}`);
+				console.log(user_id);
+
+				const response = await api.get(`/markers/getUserMarkers/${user_id}`);
 
 				// Ak odpoveď obsahuje markery, uložíme ich do stavu
 				if (response && response.length > 0) {
@@ -63,6 +64,8 @@ const Maps = () => {
 				Alert.alert('Chyba', 'Nepodarilo sa načítať markery.');
 			}
 		};
+
+
 
 		loadMarkers();
 	}, []);
@@ -255,6 +258,9 @@ const Maps = () => {
 										title={marker.marker_title}
 										description={marker.marker_description}
 										pinColor="green"
+										onCalloutPress={() => {
+											navigation.navigate('Marker', { marker_id: marker.marker_id });
+										}}
 									/>
 								))}
 							</MapView>
@@ -302,6 +308,14 @@ const Maps = () => {
 						}}>
 							<Text style={styles.buttonText}>Delete marker</Text>
 						</TouchableOpacity>
+
+						<TouchableOpacity style={styles.button} onPress={() => {
+							navigation.navigate("Markers");
+						}}>
+							<Text style={styles.buttonText}>my markers</Text>
+						</TouchableOpacity>
+
+
 					</View>
 				</>
 			) : null}
