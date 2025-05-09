@@ -2,35 +2,45 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { jwtDecode } from 'jwt-decode';
+import axios from 'axios';
 import { AuthService } from '@/services/auth';
-import { useTheme } from './themecontext';  // Importujeme useTheme z ThemeContext
+import { useTheme } from './themecontext';
 
 interface MyJwtPayload {
   username: string;
+  userId: number;
 }
 
 const Profile = () => {
-  const { darkMode, toggleDarkMode } = useTheme();  // Používame hook na prístup k téme
+  const { darkMode, toggleDarkMode } = useTheme();
   const [username, setUsername] = useState('');
   const [image, setImage] = useState<string | null>(null);
   const [biography, setBiography] = useState('');
+  const [id, setId] = useState('');
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const token = await AuthService.getToken();
-        if (token) {
-          const decoded = jwtDecode<MyJwtPayload>(token);
-          setUsername(decoded.username);
+  const fetchUser = async () => {
+    try {
+      const token = await AuthService.getToken();
+      if (token) {
+        const decoded = jwtDecode<MyJwtPayload>(token);
+        setUsername(decoded.username);
+        const userId = decoded.userId.toString();
+        setId(userId);
+
+        // Fetch user's current biography po zistení ID
+        const response = await axios.get(`http://192.168.100.215:3000/users/${userId}`);
+        if (response.data.bio) {
+          setBiography(response.data.bio);
         }
-      } catch (error) {
-        console.error('Error fetching or decoding token:', error);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
 
-    fetchUser();
-  }, []);
-
+  fetchUser();
+}, []);
   const pickImage = async () => {
     const permissionResponse = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResponse.granted) {
@@ -50,11 +60,38 @@ const Profile = () => {
     }
   };
 
+  const saveBio = async () => {
+  try {
+    if (!id) {
+      alert('User ID is not loaded yet.');
+      return;
+    }
+
+    const token = await AuthService.getToken();
+    if (!token) throw new Error('Token not found');
+
+    await axios.put(
+      `http://192.168.100.215:3000/users/${id}/biography`,
+      { bio: biography },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    alert('Biography updated!');
+  } catch (error: any) {
+    console.error('Error updating biography:', error?.response?.data || error.message);
+    alert('Failed to update biography');
+  }
+};
+
+
   const themedStyles = getStyles(darkMode);
 
   return (
     <View style={themedStyles.container}>
-      {/* Avatar + Username */}
       <View style={themedStyles.topSection}>
         <Image
           source={image ? { uri: image } : require('../../assets/images/default-avatar.png')}
@@ -66,7 +103,6 @@ const Profile = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Biography */}
       <View style={themedStyles.middleSection}>
         <TextInput
           style={themedStyles.input}
@@ -76,12 +112,11 @@ const Profile = () => {
           multiline
           textAlignVertical="top"
         />
-        <TouchableOpacity style={themedStyles.smallButton} onPress={() => alert('Bio saved!')}>
-          <Text style={themedStyles.smallButtonText}>Edit Bio</Text>
+        <TouchableOpacity style={themedStyles.smallButton} onPress={saveBio}>
+          <Text style={themedStyles.smallButtonText}>Save Biography</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Buttons Row */}
       <View style={themedStyles.bottomSection}>
         <TouchableOpacity style={themedStyles.button} onPress={() => {}}>
           <Text style={themedStyles.buttonText}>Friends</Text>

@@ -47,19 +47,19 @@ const getStyles = (dark: boolean) =>
     container: {
       flex: 1,
       flexDirection: 'column',
-      backgroundColor: dark ? '#1a1a1a' : '#fff',  // Dynamicky meníme pozadie podľa témy
+      backgroundColor: dark ? '#1a1a1a' : '#fff',
     },
     bottomHalf: {
       flex: 3,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: dark ? '#333' : '#fff',  // Dynamicky meníme pozadie podľa témy
+      backgroundColor: dark ? '#333' : '#fff',
     },
     title: {
       fontSize: 35,
       fontWeight: 'bold',
       paddingBottom: 50,
-      color: dark ? '#fff' : '#000',  // Dynamicky meníme farbu textu podľa témy
+      color: dark ? '#fff' : '#000',
     },
     form: {
       width: 300,
