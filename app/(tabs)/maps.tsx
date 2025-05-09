@@ -1,20 +1,26 @@
 import React, {useEffect, useState, useRef} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Alert, Keyboard} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Alert, Keyboard, InteractionManager} from 'react-native';
 import { useAppNavigation } from '../navigation';
-import MapView, { Marker, MapPressEvent, LatLng } from 'react-native-maps';
+import MapView, { Marker, MapPressEvent, LatLng, Polyline } from 'react-native-maps';
+
+
+
+
 import * as Location from 'expo-location';
 import axios from "axios";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { AuthService } from '@/services/auth';
 import { api } from '@/api/client';
+import { MarkerData } from '@/types/Marker';
 import { useTheme } from './themecontext';
 
 import Constants from 'expo-constants';
 
 
 
-const Maps = () => {
+const Maps = ({ route }: any) => {
 	const navigation = useAppNavigation()
+	const params = route?.params;
 
 
 	const [myMarkers, setMyMarkers] = useState<any[]>([]);
@@ -31,6 +37,8 @@ const Maps = () => {
 	});
 
 
+
+
 	const [region, setRegion] = useState<any>(null); // Bude obsahovať aktuálnu polohu
 	const [error, setError] = useState<string | null>(null);
 
@@ -39,19 +47,121 @@ const Maps = () => {
 	const [isSelectingFromAutocomplete, setIsSelectingFromAutocomplete] = useState(false);
 	const [selectedPoiInfo, setSelectedPoiInfo] = useState<{ name: string, coordinate: LatLng } | null>(null);
 	const [canMarker, setCanMarker] = useState(true);
+
+	const [mapReady, setMapReady] = useState(false);
+	const [polylineCoords, setPolylineCoords] = useState<LatLng[]>([]);
+	const [multipleMarkerCoords, setMultipleMarkerCoords] = useState<LatLng[]>([]);
+	const [multipleMarkers, setMultipleMarkers] = useState<MarkerData[]>([]);
 	const { darkMode } = useTheme();
 
-
-
 	const GOOGLE_MAPS_API_KEY = Constants.expoConfig?.extra?.googleMapsApiKey || '';
+
+
+
+	useEffect(() => {
+		if (params) {
+			if (params.type === 'single') {
+				const singleMarker = params.marker;
+				focusOnSingleMarker(singleMarker);
+
+			} else if (params.type === 'multiple') {
+				const multipleMarkers = params.markers;
+				InteractionManager.runAfterInteractions(() => {
+					drawMultipleMarkersWithPolyline(multipleMarkers);
+				});
+			}
+		}
+	}, [params]);
+
+
+
+
+
+
+
+
+
+
+
+	const focusOnSingleMarker = (marker: MarkerData) => {
+		const coordinate = {
+			latitude: marker.location_x,
+			longitude: marker.location_y,
+		};
+
+		if (mapRef.current) {
+			mapRef.current.animateToRegion({
+				...coordinate,
+				latitudeDelta: 0.01,
+				longitudeDelta: 0.01,
+			}, 1000);
+		}
+
+		setRegion({
+			...coordinate,
+			latitudeDelta: 0.01,
+			longitudeDelta: 0.01,
+		});
+
+		setMarker(coordinate);
+	};
+
+
+	const drawMultipleMarkersWithPolyline = (markers: MarkerData[]) => {
+		if (markers.length === 0) return;
+
+		setMultipleMarkers(markers);
+
+		const coordinates = markers.map(marker => ({
+			latitude: marker.location_x,
+			longitude: marker.location_y,
+		}));
+
+
+
+		setMultipleMarkerCoords(coordinates);
+		setPolylineCoords(coordinates);
+
+		const averageLatitude = coordinates.reduce((sum, coord) => sum + coord.latitude, 0) / coordinates.length;
+		const averageLongitude = coordinates.reduce((sum, coord) => sum + coord.longitude, 0) / coordinates.length;
+
+
+		setRegion({
+			latitude: averageLatitude,
+			longitude: averageLongitude,
+			latitudeDelta: 0.01,  // Priblíženie mapy
+			longitudeDelta: 0.01, // Priblíženie mapy
+		});
+
+
+		/* počkáme kým sa načíta mapa */
+		setTimeout(() => {
+			if (mapRef.current) {
+				mapRef.current.fitToCoordinates(coordinates, {
+					edgePadding: {
+						top: 50,
+						right: 50,
+						bottom: 50,
+						left: 50,
+					},
+					animated: true,
+				});
+			}
+		}, 500);
+	};
+
+
+
+
+
+
+
 
 
 	useEffect(() => {
 		const loadMarkers = async () => {
 			try {
 				const user_id = await AuthService.getUserIdFromToken();
-
-				console.log(user_id);
 
 				const response = await api.get(`/markers/getUserMarkers/${user_id}`);
 
@@ -66,7 +176,6 @@ const Maps = () => {
 				Alert.alert('Chyba', 'Nepodarilo sa načítať markery.');
 			}
 		};
-
 
 
 		loadMarkers();
@@ -100,45 +209,50 @@ const Maps = () => {
 
 
 	useEffect(() => {
-		const getLocation = async () => {
-			try {
-				// Požiadať o povolenie na prístup k polohe
-				const { status } = await Location.requestForegroundPermissionsAsync();
-				if (status !== 'granted') {
-					setError('Permission to access location was denied');
-					return;
+
+			const getLocation = async () => {
+				try {
+					// Požiadať o povolenie na prístup k polohe
+					const { status } = await Location.requestForegroundPermissionsAsync();
+					if (status !== 'granted') {
+						setError('Permission to access location was denied');
+						return;
+					}
+
+					// Získanie aktuálnej polohy
+					const location = await Location.getCurrentPositionAsync({
+						accuracy: Location.Accuracy.Balanced,
+					});
+
+
+					const userCoords = {
+						latitude: location.coords.latitude,
+						longitude: location.coords.longitude,
+					};
+					setUserLocation(userCoords);
+
+				if (params === undefined) {
+					setRegion({
+						latitude: location.coords.latitude,
+						longitude: location.coords.longitude,
+						latitudeDelta: 0.01,
+						longitudeDelta: 0.01,
+					});
 				}
 
-				// Získanie aktuálnej polohy
-				const location = await Location.getCurrentPositionAsync({
-					accuracy: Location.Accuracy.High,
-				});
+				} catch (error) {
+					let message = "Chyba pri získavaní polohy.";
+					if (axios.isAxiosError(error)) {
+						message = error.response?.data?.message || message;
+					}
 
-
-				const userCoords = {
-					latitude: location.coords.latitude,
-					longitude: location.coords.longitude,
-				};
-				setUserLocation(userCoords);
-
-				setRegion({
-					latitude: location.coords.latitude,
-					longitude: location.coords.longitude,
-					latitudeDelta: 0.01,
-					longitudeDelta: 0.01,
-				});
-			} catch (error) {
-				let message = "Chyba pri získavaní polohy.";
-				if (axios.isAxiosError(error)) {
-					message = error.response?.data?.message || message;
+					setError('Error fetching location: ' + message);
 				}
+			};
 
-				setError('Error fetching location: ' + message);
-			}
-		};
+			getLocation(); // Zavoláme funkciu na získanie polohy
 
-		getLocation(); // Zavoláme funkciu na získanie polohy
-	}, []);
+	}, [params]);
 
 
 
@@ -216,8 +330,8 @@ const Maps = () => {
 						description: styles.description,
 					}}
 					textInputProps={{
-    					placeholderTextColor: darkMode ? '#aaa' : '#888',
-  					}}
+						placeholderTextColor: darkMode ? '#aaa' : '#888',
+					}}
 					enablePoweredByContainer={false}
 					debounce={200}
 					onFail={(error) => console.error('Autocomplete error:', error)}
@@ -269,8 +383,29 @@ const Maps = () => {
 										}}
 									/>
 								))}
+								{multipleMarkers.map((marker, index) => (
+									<Marker
+										key={index}
+										coordinate={{
+											latitude: marker.location_x,
+											longitude: marker.location_y,
+										}}
+										title={marker.marker_title} // Tu pridáme názov markeru
+										description={marker.marker_description} // Tu pridáme popis markeru
+										pinColor="aqua"
+										onCalloutPress={() => {
+											navigation.navigate('Marker', { marker_id: marker.marker_id });
+										}}
+									/>
+								))}
+								{polylineCoords.length > 1 && (
+									<Polyline
+										coordinates={polylineCoords}
+										strokeColor="aqua"
+										strokeWidth={3}
+									/>
+								)}
 							</MapView>
-
 						) : (
 							<Text style={styles.loadingText}>Loading your location...</Text>
 						)}
@@ -304,7 +439,7 @@ const Maps = () => {
 									console.log("Invalid marker or POI information");
 								}
 							}}
-							>
+						>
 							<Text style={styles.buttonText}>Add marker</Text>
 						</TouchableOpacity>
 						<TouchableOpacity style={[styles.button, { opacity: marker ? 1 : 0.5 }]} disabled={!marker} onPress={() => {
@@ -331,113 +466,113 @@ const Maps = () => {
 		</View>
 	);
 };
-const getStyles = (dark: boolean) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      padding: 20,
-      backgroundColor: dark ? '#1a1a1a' : '#fff',
-      justifyContent: 'space-between',
-    },
 
-    mapContainer: {
-      flex: 1,
-      borderRadius: 5,
-      overflow: 'hidden',
-      borderWidth: 1,
-      borderColor: dark ? '#555' : '#ccc',
-      marginBottom: 20,
-    },
-    map: {
-      width: '100%',
-      height: '100%',
-    },
-    buttonContainer: {
-      width: '100%',
-      gap: 10,
-    },
-    button: {
-      flexDirection: 'row',
-      height: 50,
-      borderColor: dark ? '#555' : '#333',
-      borderWidth: 2,
-      paddingLeft: 10,
-      paddingRight: 10,
-      borderRadius: 15,
-      backgroundColor: dark ? '#444' : 'white',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    buttonText: {
-      color: dark ? '#fff' : 'black',
-      fontSize: 18,
-      marginLeft: 5,
-      fontWeight: 'bold',
-    },
-    errorText: {
-      color: 'red',
-      fontSize: 14,
-      textAlign: 'center',
-      marginTop: 10,
-    },
-    loadingText: {
-      fontSize: 14,
-      textAlign: 'center',
-      marginTop: 10,
-      color: dark ? '#ccc' : '#000',
-    },
+const getStyles = (dark: boolean) => StyleSheet.create({
+	container: {
+		flex: 1,
+		padding: 20,
+		backgroundColor: dark ? '#1a1a1a' : '#fff',
+		justifyContent: 'space-between', // Zaručuje, že tlačidlá sú na spodnej časti
+	},
 
-    searchBarContainer: {
-      width: '100%',
-      flex: 1,
-      marginBottom: 50,
-    },
-    searchBar: {
-      height: 40,
-      borderWidth: 1,
-      borderColor: dark ? '#555' : '#ccc',
-      borderRadius: 8,
-      paddingHorizontal: 10,
-      fontSize: 16,
-      backgroundColor: dark ? '#2a2a2a' : '#fff',
-      color: dark ? '#fff' : '#000',
-    },
-    autocompleteList: {
-      position: 'absolute',
-      top: 40,
-      left: 0,
-      right: 0,
-      backgroundColor: dark ? '#2a2a2a' : '#fff',
-      borderWidth: 1,
-      borderRadius: 5,
-      borderColor: dark ? '#555' : '#ccc',
-      zIndex: 20,
-    },
-    description: {
-      fontSize: 14,
-      color: dark ? '#ccc' : '#333',
-      paddingVertical: 5,
-    },
-    poiInfoPanel: {
-      position: 'absolute',
-      bottom: 30,
-      left: 20,
-      right: 20,
-      backgroundColor: dark ? '#2a2a2a' : 'white',
-      padding: 15,
-      borderRadius: 10,
-      elevation: 5,
-    },
-    poiText: {
-      fontSize: 16,
-      fontWeight: '500',
-      color: dark ? '#fff' : '#000',
-    },
-    closeButton: {
-      color: dark ? '#66f' : 'blue',
-      marginTop: 10,
-    },
-  });
+	mapContainer: {
+		flex: 1, // Mapa teraz zaberie čo najviac miesta
+		borderRadius: 5,
+		overflow: 'hidden',
+		borderWidth: 1,
+		borderColor: dark ? '#555' : '#ccc',
+		marginBottom: 20,
+	},
+	map: {
+		width: '100%',
+		height: '100%',
+	},
+	buttonContainer: {
+		width: '100%',
+		gap: 10,
+	},
+	button: {
+		flexDirection: 'row',
+		height: 50,
+		borderColor: dark ? '#555' : '#333',
+		borderWidth: 2,
 
+		paddingLeft: 10,
+		paddingRight: 10,
+		borderRadius: 15,
+		backgroundColor: dark ? '#444' : 'white',
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	buttonText: {
+		color: 'black',
+		fontSize: 18,
+		marginLeft: 5,
+		fontWeight: 'bold',
+	},
+	errorText: {
+		color: 'red',
+		fontSize: 14,
+		textAlign: 'center',
+		marginTop: 10,
+	},
+	loadingText: {
+		fontSize: 14,
+		textAlign: 'center',
+		marginTop: 10,
+		color: dark ? '#ccc' : '#000',
+	},
+
+	searchBarContainer: {
+		width: '100%',
+		flex: 1,
+		marginBottom: 50,
+	},
+	searchBar: {
+		height: 40,
+		borderWidth: 1,
+		borderColor: dark ? '#555' : '#ccc',
+		borderRadius: 8,
+		paddingHorizontal: 10,
+		fontSize: 16,
+		backgroundColor: dark ? '#2a2a2a' : '#fff',
+		color: dark ? '#fff' : '#000',
+	},
+	autocompleteList: {
+		position: 'absolute',
+		top: 40,
+		left: 0,
+		right: 0,
+		backgroundColor: dark ? '#2a2a2a' : '#fff',
+		borderWidth: 1,
+		borderRadius: 5,
+		borderColor: dark ? '#555' : '#ccc',
+		zIndex: 20,
+	},
+	description: {
+		fontSize: 14,
+		color: dark ? '#333' : '#333',
+		paddingVertical: 5,
+	},
+	poiInfoPanel: {
+		position: 'absolute',
+		bottom: 30,
+		left: 20,
+		right: 20,
+		backgroundColor: dark ? '#2a2a2a' : 'white',
+		padding: 15,
+		borderRadius: 10,
+		elevation: 5,
+	},
+	poiText: {
+		fontSize: 16,
+		fontWeight: '500',
+		color: dark ? '#fff' : '#000',
+	},
+	closeButton: {
+		color: dark ? '#66f' : 'blue',
+		marginTop: 10,
+	}
+});
 
 export default Maps;

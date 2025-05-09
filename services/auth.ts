@@ -44,7 +44,6 @@ export const AuthService = {
             const token = await this.getToken();
             if (token) {
                 const decoded = jwtDecode<MyJwtPayload>(token);
-                console.log(decoded);
                 return decoded.userId || null;
             }
         } catch (error) {
@@ -52,8 +51,6 @@ export const AuthService = {
             return null;
         }
     },
-
-
 
 
     async saveToken(token: string) {
