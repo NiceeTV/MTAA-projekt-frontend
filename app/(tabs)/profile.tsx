@@ -3,14 +3,17 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from 'reac
 import * as ImagePicker from 'expo-image-picker';
 import { jwtDecode } from 'jwt-decode';
 import { AuthService } from '@/services/auth';
+import { useTheme } from './themecontext';  // Importujeme useTheme z ThemeContext
 
 interface MyJwtPayload {
   username: string;
 }
 
 const Profile = () => {
+  const { darkMode, toggleDarkMode } = useTheme();  // Používame hook na prístup k téme
   const [username, setUsername] = useState('');
   const [image, setImage] = useState<string | null>(null);
+  const [biography, setBiography] = useState('');
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -29,133 +32,135 @@ const Profile = () => {
   }, []);
 
   const pickImage = async () => {
-    // Požiadať o povolenie na prístup k galérii
-    const permissionResponse = await ImagePicker.requestMediaLibraryPermissionsAsync(); 
-  
-    console.log('Current permission status:', permissionResponse);
-  
+    const permissionResponse = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResponse.granted) {
       alert('Permission to access gallery is required!');
       return;
     }
-  
-    // Po získaní povolenia, otvor galériu
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: 'images',
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
     });
-  
+
     if (!result.canceled) {
       setImage(result.assets[0].uri);
     }
   };
-  
+
+  const themedStyles = getStyles(darkMode);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.topHalf}>
-        <TouchableOpacity onPress={pickImage}>
-          <Image
-            source={image ? { uri: image } : require('../../assets/images/default-avatar.png')}
-            style={styles.avatar}
-          />
+    <View style={themedStyles.container}>
+      {/* Avatar + Username */}
+      <View style={themedStyles.topSection}>
+        <Image
+          source={image ? { uri: image } : require('../../assets/images/default-avatar.png')}
+          style={themedStyles.avatar}
+        />
+        <Text style={themedStyles.username}>{username || 'Loading...'}</Text>
+        <TouchableOpacity style={themedStyles.smallButton} onPress={pickImage}>
+          <Text style={themedStyles.smallButtonText}>Edit Photo</Text>
         </TouchableOpacity>
-        <Text style={styles.username}>{username || 'Loading...'}</Text>
       </View>
 
-      <View style={styles.middle}>
-        <View style={styles.form}>
-          <TextInput
-            style={styles.input}
-            placeholder="Biography"
-            multiline
-            textAlignVertical='top'
-          />
-        </View>
+      {/* Biography */}
+      <View style={themedStyles.middleSection}>
+        <TextInput
+          style={themedStyles.input}
+          placeholder="Write something about yourself..."
+          value={biography}
+          onChangeText={setBiography}
+          multiline
+          textAlignVertical="top"
+        />
+        <TouchableOpacity style={themedStyles.smallButton} onPress={() => alert('Bio saved!')}>
+          <Text style={themedStyles.smallButtonText}>Edit Bio</Text>
+        </TouchableOpacity>
       </View>
 
-      <View style={styles.bottomHalf}>
-        <View style={styles.form}>
-          <TouchableOpacity style={styles.button} onPress={() => {}}>
-            <Text style={styles.buttonText}>Friends</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => {}}>
-            <Text style={styles.buttonText}>Statistics</Text>
-          </TouchableOpacity>
-        </View>
+      {/* Buttons Row */}
+      <View style={themedStyles.bottomSection}>
+        <TouchableOpacity style={themedStyles.button} onPress={() => {}}>
+          <Text style={themedStyles.buttonText}>Friends</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={themedStyles.button} onPress={() => {}}>
+          <Text style={themedStyles.buttonText}>Statistics</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={themedStyles.button} onPress={toggleDarkMode}>
+          <Text style={themedStyles.buttonText}>{darkMode ? 'Light Mode' : 'Dark Mode'}</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'column',
-  },
-  topHalf: {
-    flex: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  middle: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  bottomHalf: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  username: {
-    fontSize: 35,
-    fontWeight: '300',
-    marginTop: 10,
-  },
-  avatar: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    borderWidth: 2,
-    borderColor: '#333',
-  },
-  form: {
-    width: 300,
-    padding: 10,
-  },
-  button: {
-    height: 50,
-    borderColor: '#333',
-    borderWidth: 0,
-    marginBottom: 20,
-    paddingLeft: 10,
-    paddingRight: 10,
-    borderRadius: 20,
-    backgroundColor: '#333',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#333',
-    padding: 10,
-    marginBottom: 20,
-    borderRadius: 10,
-    width: 300,
-    height: 150,
-    fontSize: 18,
-  },
-});
+const getStyles = (dark: boolean) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: dark ? '#1a1a1a' : '#fff',
+      padding: 20,
+    },
+    topSection: {
+      alignItems: 'center',
+      marginBottom: 30,
+    },
+    avatar: {
+      width: 150,
+      height: 150,
+      borderRadius: 75,
+      borderWidth: 2,
+      borderColor: dark ? '#ccc' : '#333',
+    },
+    username: {
+      fontSize: 28,
+      fontWeight: '600',
+      color: dark ? '#fff' : '#000',
+      marginVertical: 10,
+    },
+    smallButton: {
+      backgroundColor: dark ? '#444' : '#e0e0e0',
+      paddingHorizontal: 20,
+      paddingVertical: 8,
+      borderRadius: 15,
+    },
+    smallButtonText: {
+      color: dark ? '#fff' : '#000',
+      fontWeight: '500',
+    },
+    middleSection: {
+      marginBottom: 30,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: dark ? '#666' : '#ccc',
+      borderRadius: 10,
+      padding: 15,
+      fontSize: 16,
+      height: 120,
+      color: dark ? '#fff' : '#000',
+      backgroundColor: dark ? '#333' : '#f9f9f9',
+      marginBottom: 10,
+    },
+    bottomSection: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
+    button: {
+      flex: 1,
+      backgroundColor: dark ? '#555' : '#333',
+      padding: 12,
+      marginHorizontal: 5,
+      borderRadius: 10,
+      alignItems: 'center',
+    },
+    buttonText: {
+      color: '#fff',
+      fontWeight: '600',
+    },
+  });
 
 export default Profile;

@@ -1,12 +1,15 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
+import { ActivityIndicator, View } from 'react-native';
+import { ThemeProvider } from './themecontext';
+import { AuthService } from "@/services/auth";
 import LoginPage from './loginpage';
 import Register from './register';
 import HomePage from './homescreen';
 import Maps from './maps';
 import Profile from './profile';
 import TripImagesTest from './tripimagestest';
-import Trips from './trips'
+import Trips from './trips';
 import AddMarker from './addmarker';
 import AddFriend from './addfriend';
 import AddTrip from './addtrip';
@@ -20,42 +23,40 @@ import Trip from './trip';
 import TripsFriend from './tripsfriend';
 import Notifications from './notifications';
 import Statistics from './statistics';
-import {AuthService} from "@/services/auth";
-import {ActivityIndicator, View} from "react-native";
 import 'react-native-get-random-values';
 
 const Stack = createStackNavigator();
 
-const Appl = () => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false); // Stav prihlásenia
-    const [isLoading, setIsLoading] = useState(true);
+const AppNavigator = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        const checkLoggedInStatus = async () => {
-            const loggedIn = await AuthService.isLoggedIn(); // Skontroluj, či je používateľ prihlásený
-            setIsLoggedIn(loggedIn); // Nastav stav podľa toho, či je prihlásený
-            setIsLoading(false); // Zastav načítavanie
-        };
+  useEffect(() => {
+    const checkLoggedInStatus = async () => {
+      const loggedIn = await AuthService.isLoggedIn();
+      setIsLoggedIn(loggedIn);
+      setIsLoading(false);
+    };
 
-        checkLoggedInStatus(); // Spusti kontrolu pri načítaní komponentu
-    }, []);
+    checkLoggedInStatus();
+  }, []);
 
-    if (isLoading) {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" color="#0000ff" />
-            </View>
-        );
-    }
-
+  if (isLoading) {
     return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  return (
     <Stack.Navigator initialRouteName={isLoggedIn ? "Home" : "Login"}>
-      <Stack.Screen name="Login" component={LoginPage} options={{ headerShown: false }}/>
-      <Stack.Screen name="Register" component={Register}/>
-      <Stack.Screen name="Home" component={HomePage} options={{ headerShown: false }}  />
+      <Stack.Screen name="Login" component={LoginPage} options={{ headerShown: false }} />
+      <Stack.Screen name="Register" component={Register} />
+      <Stack.Screen name="Home" component={HomePage} options={{ headerShown: false }} />
       <Stack.Screen name="Map" component={Maps} />
-      <Stack.Screen name="Profile" component={Profile}/>
-      <Stack.Screen name="TripImagesTest" component={TripImagesTest}/>
+      <Stack.Screen name="Profile" component={Profile} />
+      <Stack.Screen name="TripImagesTest" component={TripImagesTest} />
       <Stack.Screen name="Trips" component={Trips} />
       <Stack.Screen name="AddMarker" component={AddMarker} />
       <Stack.Screen name="AddFriend" component={AddFriend} />
@@ -73,4 +74,13 @@ const Appl = () => {
     </Stack.Navigator>
   );
 };
+
+const Appl = () => {
+  return (
+    <ThemeProvider>
+      <AppNavigator />
+    </ThemeProvider>
+  );
+};
+
 export default Appl;
