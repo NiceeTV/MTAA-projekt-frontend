@@ -1,9 +1,27 @@
-import React, {useEffect, useState, useRef} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Alert, Keyboard, InteractionManager} from 'react-native';
+import React, {useEffect, useState, useRef, useMemo} from 'react';
+import {
+	View,
+	Text,
+	StyleSheet,
+	TouchableOpacity,
+	Alert,
+	Keyboard,
+	InteractionManager,
+	Image,
+	ActivityIndicator
+} from 'react-native';
 import { useAppNavigation } from '../navigation';
-import MapView, { Marker, MapPressEvent, LatLng, Polyline } from 'react-native-maps';
+import MapView, {Marker, MapPressEvent, LatLng, Polyline, UrlTile, Region} from 'react-native-maps';
+import * as SecureStore from 'expo-secure-store';
+import * as FileSystem from 'expo-file-system';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import Entypo from '@expo/vector-icons/Entypo';
+import Feather from '@expo/vector-icons/Feather';
 
 
+
+
+import { useOffline } from '@/context/OfflineContext';
 
 
 import * as Location from 'expo-location';
@@ -18,10 +36,21 @@ import Constants from 'expo-constants';
 
 
 
+
+// Konštanta pre OpenStreetMap dlaždice
+const TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+const CACHE_DIR = `${FileSystem.documentDirectory}mapTiles/`;
+const GOOGLE_MAPS_API_KEY = Constants.expoConfig?.extra?.googleMapsApiKey || '';
+
+
+
+
 const Maps = ({ route }: any) => {
 	const navigation = useAppNavigation()
 	const params = route?.params;
 
+
+	const jeOffline = useOffline();
 
 	const [myMarkers, setMyMarkers] = useState<any[]>([]);
 
@@ -54,7 +83,67 @@ const Maps = ({ route }: any) => {
 	const [multipleMarkers, setMultipleMarkers] = useState<MarkerData[]>([]);
 	const { darkMode } = useTheme();
 
-	const GOOGLE_MAPS_API_KEY = Constants.expoConfig?.extra?.googleMapsApiKey || '';
+
+
+	/*** OFFLINE REZIM ***/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	const [tilesLoaded, setTilesLoaded] = useState(false);
+	const [zoom, setZoom] = useState(13); // Predvolený zoom level
+	const [latitude, setLatitude] = useState(35.2271); // Predvolená šírka (príklad)
+	const [longitude, setLongitude] = useState(-80.8431);
+
+	const [isCaching, setIsCaching] = useState(false);
+
+
+
+
+
+
+
+
+	const saveMarkersToStorage = async (markers: MarkerData[]) => {
+		try {
+			await SecureStore.setItemAsync('offlineMarkers', JSON.stringify(markers));
+		} catch (error) {
+			console.error('Chyba pri ukladaní markerov:', error);
+		}
+	};
+
+
+	const loadMarkersFromStorage = async () => {
+		try {
+			const markers = await SecureStore.getItemAsync('offlineMarkers');
+			if (markers) {
+				setMyMarkers(JSON.parse(markers));
+			}
+		} catch (error) {
+			console.error('Chyba pri načítaní markerov:', error);
+		}
+	};
+
 
 
 
@@ -72,14 +161,6 @@ const Maps = ({ route }: any) => {
 			}
 		}
 	}, [params]);
-
-
-
-
-
-
-
-
 
 
 
@@ -154,32 +235,30 @@ const Maps = ({ route }: any) => {
 
 
 
-
-
-
-
 	useEffect(() => {
 		const loadMarkers = async () => {
 			try {
-				const user_id = await AuthService.getUserIdFromToken();
-
-				const response = await api.get(`/markers/getUserMarkers/${user_id}`);
-
-				// Ak odpoveď obsahuje markery, uložíme ich do stavu
-				if (response && response.length > 0) {
-					setMyMarkers(response);
+				if (!jeOffline) {
+					const user_id = await AuthService.getUserIdFromToken();
+					const response = await api.get(`/markers/getUserMarkers/${user_id}`);
+					if (response && response.length > 0) {
+						setMyMarkers(response);
+						saveMarkersToStorage(response); // Ulož markery do AsyncStorage
+					} else {
+						Alert.alert('Žiadne markery', 'Pre tohto používateľa neexistujú žiadne markery.');
+					}
 				} else {
-					Alert.alert('Žiadne markery', 'Pre tohto používateľa neexistujú žiadne markery.');
+					loadMarkersFromStorage(); // Načítaj markery offline
 				}
 			} catch (error) {
 				console.error('Chyba pri načítaní markerov:', error);
 				Alert.alert('Chyba', 'Nepodarilo sa načítať markery.');
+				loadMarkersFromStorage(); // Pokus o načítanie offline dát
 			}
 		};
 
-
 		loadMarkers();
-	}, []);
+	}, [jeOffline]);
 
 
 
@@ -207,52 +286,59 @@ const Maps = ({ route }: any) => {
 
 
 
-
 	useEffect(() => {
-
-			const getLocation = async () => {
-				try {
-					// Požiadať o povolenie na prístup k polohe
-					const { status } = await Location.requestForegroundPermissionsAsync();
-					if (status !== 'granted') {
-						setError('Permission to access location was denied');
-						return;
-					}
-
-					// Získanie aktuálnej polohy
-					const location = await Location.getCurrentPositionAsync({
-						accuracy: Location.Accuracy.Balanced,
-					});
-
-
-					const userCoords = {
-						latitude: location.coords.latitude,
-						longitude: location.coords.longitude,
-					};
-					setUserLocation(userCoords);
-
-				if (params === undefined) {
-					setRegion({
-						latitude: location.coords.latitude,
-						longitude: location.coords.longitude,
-						latitudeDelta: 0.01,
-						longitudeDelta: 0.01,
-					});
+		const getLocation = async () => {
+			try {
+				// Požiadať o povolenie na prístup k polohe
+				const { status } = await Location.requestForegroundPermissionsAsync();
+				if (status !== 'granted') {
+					setError('Permission to access location was denied');
+					return;
 				}
 
-				} catch (error) {
-					let message = "Chyba pri získavaní polohy.";
-					if (axios.isAxiosError(error)) {
-						message = error.response?.data?.message || message;
-					}
 
-					setError('Error fetching location: ' + message);
+				// Získanie aktuálnej polohy
+				const location = await Location.getCurrentPositionAsync({
+					accuracy: Location.Accuracy.Balanced,
+				});
+
+
+				const userCoords = {
+					latitude: location.coords.latitude,
+					longitude: location.coords.longitude,
+				};
+				setUserLocation(userCoords);
+
+			if (params === undefined) {
+				setRegion({
+					latitude: location.coords.latitude,
+					longitude: location.coords.longitude,
+					latitudeDelta: 0.01,
+					longitudeDelta: 0.01,
+				});
+			}
+
+
+			/*if (!jeOffline) { //Cache dlaždíc pre aktuálnu oblasť
+				const zoom = 15; // Prispôsob podľa potreby
+				const x = Math.floor((userCoords.longitude + 180) / 360 * Math.pow(2, zoom));
+				const y = Math.floor((1 - Math.log(Math.tan(userCoords.latitude * Math.PI / 180) + 1 / Math.cos(userCoords.latitude * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
+				cacheTile(x, y, zoom);
+			}*/
+
+
+			} catch (error) {
+				let message = "Chyba pri získavaní polohy.";
+				if (axios.isAxiosError(error)) {
+					message = error.response?.data?.message || message;
 				}
-			};
 
-			getLocation(); // Zavoláme funkciu na získanie polohy
+				setError('Error fetching location: ' + message);
+			}
+		};
 
-	}, [params]);
+		getLocation(); // Zavoláme funkciu na získanie polohy
+	}, [params, jeOffline]);
 
 
 
@@ -309,33 +395,110 @@ const Maps = ({ route }: any) => {
 		}
 	};
 
+
+	const centerOnUser = async () => {
+		try {
+			const { status } = await Location.requestForegroundPermissionsAsync();
+			if (status !== 'granted') {
+				console.warn('Permission to access location denied');
+				return;
+			}
+
+			const location = await Location.getCurrentPositionAsync({});
+			const region = {
+				latitude: location.coords.latitude,
+				longitude: location.coords.longitude,
+				latitudeDelta: 0.01,
+				longitudeDelta: 0.01,
+			};
+
+			mapRef.current?.animateToRegion(region, 500);
+		} catch (error) {
+			console.error('Chyba pri získaní polohy:', error);
+		}
+	};
+
+	const smoothZoom = (direction: 'in' | 'out') => {
+		const factor = direction === 'in' ? 0.8 : 1.25;
+		let steps = 5;
+		let delay = 40;
+
+		const zoomStep = (step: number, currentRegion: any) => {
+			if (step === 0) return;
+
+			const nextRegion = {
+				...currentRegion,
+				latitudeDelta: currentRegion.latitudeDelta * factor,
+				longitudeDelta: currentRegion.longitudeDelta * factor,
+			};
+
+
+			mapRef.current?.animateToRegion(nextRegion, delay);
+
+			setTimeout(() => {
+				zoomStep(step - 1, nextRegion);
+			}, delay);
+		};
+
+		zoomStep(steps, region);
+	};
+
+	const clearCache = async () => {
+		try {
+			const files = await FileSystem.readDirectoryAsync(CACHE_DIR);
+
+			if (files.length > 0) {
+				for (const file of files) {
+					await FileSystem.deleteAsync(`${CACHE_DIR}${file}`);
+				}
+				console.log('Všetky cacheované dlaždice boli odstránené');
+			} else {
+				console.log('Nenašli sa žiadne cacheované dlaždice');
+			}
+		} catch (error) {
+			console.error('Chyba pri odstraňovaní cacheovaných dlaždíc:', error);
+		}
+	};
+
+
+
 	const styles = getStyles(darkMode);
+
 
 	return (
 		<View style={styles.container}>
 			<View>
-				<GooglePlacesAutocomplete
-					placeholder="Hľadať miesto"
-					onPress={handlePlaceSelect}
-					fetchDetails={true}
-					query={{
-						key: GOOGLE_MAPS_API_KEY,
-						language: 'sk',
-						components: 'country:sk',
-					}}
-					styles={{
-						container: styles.searchBarContainer,
-						textInput: styles.searchBar,
-						listView: styles.autocompleteList,
-						description: styles.description,
-					}}
-					textInputProps={{
-						placeholderTextColor: darkMode ? '#aaa' : '#888',
-					}}
-					enablePoweredByContainer={false}
-					debounce={200}
-					onFail={(error) => console.error('Autocomplete error:', error)}
-				/>
+				{jeOffline ? (
+					<View style={styles.noConnectionContainer}>
+						<MaterialCommunityIcons name="connection" size={24} color = {darkMode ? 'white' : 'black'} />
+						<Text style={{ padding: 10, fontSize: 16, color: darkMode ? '#fff' : '#000' }}>
+							Offline režim
+						</Text>
+					</View>
+				) : (
+					<GooglePlacesAutocomplete
+						placeholder="Hľadať miesto"
+						onPress={handlePlaceSelect}
+						fetchDetails={true}
+						query={{
+							key: GOOGLE_MAPS_API_KEY,
+							language: 'sk',
+							components: 'country:sk',
+						}}
+						styles={{
+							container: styles.searchBarContainer,
+							textInput: styles.searchBar,
+							listView: styles.autocompleteList,
+							description: styles.description,
+						}}
+						textInputProps={{
+							placeholderTextColor: darkMode ? '#aaa' : '#888',
+						}}
+						enablePoweredByContainer={false}
+						debounce={200}
+						onFail={(error) => console.error('Autocomplete error:', error)}
+					/>
+				)}
 			</View>
 
 			{(isSelectingFromAutocomplete || !isKeyboardVisible) ? (
@@ -347,23 +510,29 @@ const Maps = ({ route }: any) => {
 								style={styles.map}
 								region={region}
 								onPress={handleMapPress}
-								pointerEvents={isSelectingFromAutocomplete ? 'none' : 'auto'}
 								onPoiClick={(e) => {
 									const { name, coordinate } = e.nativeEvent;
-									setSelectedPoiInfo({ name, coordinate });
-									handleDeleteMarker();
 
-									if (coordinate) {
-										handleAddMarker(coordinate);
-									}
+									setSelectedPoiInfo({
+										name,
+										coordinate,
+									});
 
-
-									console.log('Kliknuté POI:', name, coordinate);
+									setMarker(coordinate);
 								}}
+								pointerEvents={isSelectingFromAutocomplete ? 'none' : 'auto'}
+								onRegionChangeComplete={(newRegion) => {
+									setRegion(newRegion);
+								}}
+
 							>
-								{marker && (
-									<Marker coordinate={marker} />
-								)}
+
+
+
+
+								{marker && <Marker coordinate={marker} />}
+
+
 								{userLocation?.latitude && userLocation?.longitude && (
 									<Marker
 										coordinate={userLocation}
@@ -371,6 +540,8 @@ const Maps = ({ route }: any) => {
 										title="Moja poloha"
 									/>
 								)}
+
+
 								{myMarkers.map((marker, index) => (
 									<Marker
 										key={index}
@@ -383,6 +554,8 @@ const Maps = ({ route }: any) => {
 										}}
 									/>
 								))}
+
+
 								{multipleMarkers.map((marker, index) => (
 									<Marker
 										key={index}
@@ -390,14 +563,16 @@ const Maps = ({ route }: any) => {
 											latitude: marker.location_x,
 											longitude: marker.location_y,
 										}}
-										title={marker.marker_title} // Tu pridáme názov markeru
-										description={marker.marker_description} // Tu pridáme popis markeru
+										title={marker.marker_title}
+										description={marker.marker_description}
 										pinColor="aqua"
 										onCalloutPress={() => {
 											navigation.navigate('Marker', { marker_id: marker.marker_id });
 										}}
 									/>
 								))}
+
+
 								{polylineCoords.length > 1 && (
 									<Polyline
 										coordinates={polylineCoords}
@@ -409,6 +584,75 @@ const Maps = ({ route }: any) => {
 						) : (
 							<Text style={styles.loadingText}>Loading your location...</Text>
 						)}
+
+
+						{userLocation?.latitude && userLocation?.longitude && (
+							<>
+								<View style={styles.mapBtn_Container}>
+									<View style={styles.plusMinus}>
+
+										<TouchableOpacity
+											style={
+												styles.mapBtnNoBorder
+											}
+											onPress={() => smoothZoom('in')}
+										>
+											<Entypo name="plus" size={30} color="black" />
+										</TouchableOpacity>
+
+										<View style={{ height: 1, width: '70%', backgroundColor: '#ccc' }} />
+
+
+										<TouchableOpacity
+											style={
+												styles.mapBtnNoBorder
+											}
+											onPress={() => smoothZoom('out')}
+										>
+											<Entypo name="minus" size={24} color="black" />
+										</TouchableOpacity>
+									</View>
+
+
+
+									<TouchableOpacity
+										activeOpacity={0.8}
+										style={styles.mapBtn}
+										onPress={() => {
+											if (userLocation) {
+												centerOnUser();
+											}
+										}}
+									>
+										<MaterialCommunityIcons name="target" size={24} color='black' />
+									</TouchableOpacity>
+
+									<TouchableOpacity
+										activeOpacity={0.8}
+										style={styles.mapBtn}
+										onPress={() => {
+											Alert.alert('Chyba', 'Táto funkcia ešte nie je dostupná.');
+										}}
+									>
+										<Text style={{fontSize: 20}}>AI</Text>
+									</TouchableOpacity>
+								</View>
+
+								<TouchableOpacity
+									activeOpacity={0.8}
+									style={styles.mapBtnDownload}
+
+
+
+
+									>
+									<Feather name="download" size={30} color="black" />
+
+								</TouchableOpacity>
+							</>
+						)}
+
+
 						{selectedPoiInfo && (
 							<View style={styles.poiInfoPanel}>
 								<Text style={styles.poiText}>{selectedPoiInfo.name}</Text>
@@ -423,6 +667,8 @@ const Maps = ({ route }: any) => {
 							</View>
 						)}
 					</View>
+
+
 					<View style={styles.buttonContainer}>
 						<TouchableOpacity
 							style={[styles.button, { opacity: marker ? 1 : 0.5 }]}
@@ -430,53 +676,68 @@ const Maps = ({ route }: any) => {
 							onPress={() => {
 								const poiTitle = selectedPoiInfo ? selectedPoiInfo.name : '';
 								if (marker) {
-									navigation.navigate("AddMarker", {
+									navigation.navigate('AddMarker', {
 										latitude: marker.latitude,
 										longitude: marker.longitude,
 										name: poiTitle,
 									});
 								} else {
-									console.log("Invalid marker or POI information");
+									console.log('Invalid marker or POI information');
 								}
 							}}
 						>
 							<Text style={styles.buttonText}>Add marker</Text>
 						</TouchableOpacity>
-						<TouchableOpacity style={[styles.button, { opacity: marker ? 1 : 0.5 }]} disabled={!marker} onPress={() => {
-							handleDeleteMarker();
-							setSelectedPoiInfo(null);
-							setCanMarker(true);
-						}}>
+
+						<TouchableOpacity
+							style={[styles.button, { opacity: marker ? 1 : 0.5 }]}
+							disabled={!marker}
+							onPress={() => {
+								handleDeleteMarker();
+								setSelectedPoiInfo(null);
+								setCanMarker(true);
+							}}
+						>
 							<Text style={styles.buttonText}>Delete marker</Text>
 						</TouchableOpacity>
 
-						<TouchableOpacity style={styles.button} onPress={() => {
-							navigation.navigate("Markers");
-						}}>
-							<Text style={styles.buttonText}>my markers</Text>
+						<TouchableOpacity
+							style={styles.button}
+							onPress={() => {
+								navigation.navigate('Markers');
+							}}
+						>
+							<Text style={styles.buttonText}>My markers</Text>
 						</TouchableOpacity>
-
-
 					</View>
 				</>
 			) : null}
+
+
 			{typeof error === 'string' && !!error ? (
 				<Text style={styles.errorText}>{error}</Text>
 			) : null}
 		</View>
+
 	);
-};
+}
+
+
+
+
+
+
 
 const getStyles = (dark: boolean) => StyleSheet.create({
 	container: {
 		flex: 1,
 		padding: 20,
 		backgroundColor: dark ? '#1a1a1a' : '#fff',
-		justifyContent: 'space-between', // Zaručuje, že tlačidlá sú na spodnej časti
+		justifyContent: 'space-between',
 	},
 
 	mapContainer: {
-		flex: 1, // Mapa teraz zaberie čo najviac miesta
+		flex: 1,
 		borderRadius: 5,
 		overflow: 'hidden',
 		borderWidth: 1,
@@ -572,6 +833,67 @@ const getStyles = (dark: boolean) => StyleSheet.create({
 	closeButton: {
 		color: dark ? '#66f' : 'blue',
 		marginTop: 10,
+	},
+	noConnectionContainer: {
+		flexDirection: 'row',
+		height: 45,
+		borderWidth: 1,
+		borderColor: dark ? '#555' : '#ccc',
+		borderRadius: 8,
+		paddingHorizontal: 10,
+		fontSize: 16,
+		backgroundColor: dark ? '#8B0000' : '#FF6347',
+		color: dark ? '#fff' : '#000',
+		marginBottom: 10,
+		alignItems: 'center',
+	},
+	mapBtn: {
+		backgroundColor: dark ? '#f2f2f2' : 'white',
+		padding: 5,
+		borderRadius: 3,
+		alignItems: 'center',
+		justifyContent: 'center',
+		elevation: 5,
+		marginTop: 10,
+		height: 40,
+		width: 40
+	},
+	mapBtnNoBorder: {
+		backgroundColor: dark ? '#f2f2f2' : 'white',
+		padding: 5,
+		outline: 'black',
+		borderRadius: 0,
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+	mapBtnDownload: {
+		position: 'absolute',
+		bottom: 15,
+		right: 15,
+		backgroundColor: dark ? '#f2f2f2' : 'white',
+		padding: 5,
+		borderRadius: 3,
+		alignItems: 'center',
+		justifyContent: 'center',
+		elevation: 2,
+	},
+
+	mapBtn_Container: {
+		position: 'absolute',
+		flexDirection: 'column',
+		top: 15,
+		right: 15,
+		borderWidth: 0,
+		height: 'auto'
+	},
+	plusMinus: {
+		flexDirection: 'column',
+		justifyContent: 'center',
+		alignItems: 'center',
+		backgroundColor: dark ? '#f2f2f2' : 'white',
+		borderRadius: 3,
+		elevation: 2,
+		paddingBottom: 1
 	}
 });
 

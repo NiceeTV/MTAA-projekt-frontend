@@ -25,6 +25,7 @@ import Notifications from './notifications';
 import Statistics from './statistics';
 import 'react-native-get-random-values';
 import { useTheme } from './themecontext';
+import { OfflineProvider } from '@/context/OfflineContext';
 
 const Stack = createStackNavigator();
 
@@ -89,9 +90,11 @@ const AppNavigator = () => {
 
 const Appl = () => {
   return (
-    <ThemeProvider>
-      <AppNavigator />
-    </ThemeProvider>
+      <OfflineProvider>
+          <ThemeProvider>
+              <AppNavigator />
+          </ThemeProvider>
+      </OfflineProvider>
   );
 };
 
