@@ -1,58 +1,59 @@
 import React, {useState} from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { Button } from 'react-native-paper';
-import { DatePickerModal } from 'react-native-paper-dates';
 import { useAppNavigation } from '../navigation';
-import { enGB, registerTranslation } from 'react-native-paper-dates'
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { api } from '@/api/client';
+import { AxiosError } from 'axios';
 
+
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const AddMarker = ({ route }: any) => {
   const navigation = useAppNavigation();
-  const { marker } = route.params;
+  const { latitude, longitude, name } = route.params;
 
-
-  const [title, setTitle] = useState<string>(marker?.title || ''); // Predvyplnený title, ak existuje
+  const [title, setTitle] = useState<string>(name || ''); // Predvyplnený title, ak existuje
   const [description, setDescription] = useState<string>(''); // Popis
 
-
-  const [date, setDate] = React.useState(undefined);
-
-
+  const [date, setDate] = React.useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
 
-  const [visible, setVisible] = React.useState(false);
-  registerTranslation("en", enGB);
 
 
-
-  /*const onChangeDate = (event: any, selectedDate: Date | undefined) => {
-    const currentDate = selectedDate || date;
-    setShowDatePicker(false);
-    setDate(currentDate);
-  };*/
-
-  // Funkcia na odoslanie formulára
-  /*const handleSubmit = () => {
-    if (!description) {
-      Alert.alert('Chyba', 'Prosím, vyplňte popis.');
+  const handleSubmit = async () => {
+    if (!description || !title || !date) {
+      Alert.alert('Chyba', 'Vyplň všetky polia vrátane dátumu.');
       return;
     }
 
-    // Odošleme dáta
-    const requestData = {
-      title: title,
-      description: description,
-      date: date?.toISOString(),
-      coordinates: marker, // Pošleme aj súradnice
-    };*/
+    try {
+      const markerData = {
+        x_pos: latitude,
+        y_pos: longitude,
+        marker_title: title,
+        marker_description: description,
+        trip_date: date.toISOString(),
+      };
 
-    // Tu budeš robiť request (napr. axios.post) na server
-    //console.log('Data na odoslanie:', requestData);
 
-    // Ak je odoslanie úspešné, môžeš navigovať späť alebo na ďalší screen
-    /*Alert.alert('Úspech', 'Marker bol pridaný!');
-    navigation.goBack(); // Alebo naviguj na iný screen*/
+      /* backend api request */
+      const response = await api.post('/markers', markerData);
+
+
+      /* odpoveď */
+      Alert.alert('Úspech', response.message);
+      navigation.goBack();
+
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        Alert.alert('Chyba', error.response?.data?.error || error.message);
+      } else if (error instanceof Error) {
+        Alert.alert('Chyba', error.message);
+      } else {
+        console.error("Neznáma chyba:", error);
+      }
+    }
+  };
+
 
 
 
@@ -64,19 +65,16 @@ const AddMarker = ({ route }: any) => {
   };
 
 
-  const [open, setOpen] = React.useState(false);
+  const onChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setDate(selectedDate);
+    }
+  };
 
-  const onDismissSingle = React.useCallback(() => {
-    setOpen(false);
-  }, [setOpen]);
 
-  const onConfirmSingle = React.useCallback(
-      (params: { date: any }) => {
-        setOpen(false);
-        setDate(params.date);
-      },
-      [setOpen, setDate]
-  );
+
+
 
 
   return (
@@ -107,25 +105,21 @@ const AddMarker = ({ route }: any) => {
         )}
 
 
-
         <View style={styles.btnContainer}>
-          <SafeAreaProvider>
-            <View style={{ alignItems: 'center'}}>
-              <Button style={styles.button} onPress={() => setOpen(true)} uppercase={false} mode="outlined">
-                <Text style={styles.submitButtonText}>Vyber dátum</Text>
-              </Button>
-              <DatePickerModal
-                  locale="en"
-                  mode="single"
-                  visible={open}
-                  onDismiss={onDismissSingle}
-                  date={date}
-                  onConfirm={onConfirmSingle}
-              />
-            </View>
-          </SafeAreaProvider>
+          <TouchableOpacity style={styles.button} onPress={() => setShowDatePicker(true)}>
+            <Text style={styles.submitButtonText}>Vyber dátum</Text>
+          </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button}>
+          {showDatePicker && (
+              <DateTimePicker
+                  mode="date"
+                  display={'default'}
+                  value={date}
+                  onChange={onChange}
+              />
+          )}
+
+          <TouchableOpacity style={styles.button} onPress={() => handleSubmit()}>
             <Text style={styles.submitButtonText}>Odoslať</Text>
           </TouchableOpacity>
         </View>
