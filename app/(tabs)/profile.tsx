@@ -5,6 +5,7 @@ import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import { AuthService } from '@/services/auth';
 import { useTheme } from './themecontext';
+import { api } from '@/api/client';
 
 interface MyJwtPayload {
   username: string;
@@ -28,10 +29,13 @@ const Profile = () => {
         const userId = decoded.userId.toString();
         setId(userId);
 
-        // Fetch user's current biography po zistení ID
-        const response = await axios.get(`http://192.168.100.215:3000/users/${userId}`);
-        if (response.data.bio) {
-          setBiography(response.data.bio);
+        // Fetch user's current biography after determining the user ID
+        const response = await api.get(`/users/${userId}`);
+
+        if (response.bio) {
+          setBiography(response.bio);
+        } else {
+          console.warn('Biography not found in the response');
         }
       }
     } catch (error) {
@@ -41,6 +45,7 @@ const Profile = () => {
 
   fetchUser();
 }, []);
+
   const pickImage = async () => {
     const permissionResponse = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResponse.granted) {
@@ -70,15 +75,7 @@ const Profile = () => {
     const token = await AuthService.getToken();
     if (!token) throw new Error('Token not found');
 
-    await axios.put(
-      `http://192.168.100.215:3000/users/${id}/biography`,
-      { bio: biography },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    await api.put(`/users/${id}/biography`, { bio: biography });
 
     alert('Biography updated!');
   } catch (error: any) {
@@ -86,7 +83,6 @@ const Profile = () => {
     alert('Failed to update biography');
   }
 };
-
 
   const themedStyles = getStyles(darkMode);
 

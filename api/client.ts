@@ -4,7 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 const AUTH_TOKEN_KEY = 'auth_token';
 
 const apiClient = axios.create({
-    baseURL: "http://192.168.0.105:3000",
+    baseURL: "http://192.168.100.215:3000",
     timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
@@ -45,6 +45,17 @@ export const api = {
 
         } catch (error) {
             console.error('API POST Error:', error);
+            throw error;
+        }
+    },
+
+    put: async (endpoint: string, data: any) => {
+        try {
+            const response = await apiClient.put(endpoint, data);
+            console.log(endpoint);
+            return response.data;
+        } catch (error) {
+            console.error('API PUT Error:', error);
             throw error;
         }
     }
