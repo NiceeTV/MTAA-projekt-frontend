@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { jwtDecode } from 'jwt-decode';
-import axios from 'axios';
 import { AuthService } from '@/services/auth';
 import { useTheme } from './themecontext';
 import { api } from '@/api/client';
+import { useAppNavigation } from '../navigation';
 
 interface MyJwtPayload {
   username: string;
@@ -18,6 +18,36 @@ const Profile = () => {
   const [image, setImage] = useState<string | null>(null);
   const [biography, setBiography] = useState('');
   const [id, setId] = useState('');
+  const navigation = useAppNavigation();
+
+  const handleLogout = async () => {
+    Alert.alert(
+      'Potvrdiť odhlásenie',
+      'Skutočne sa chcete odhlásiť?',
+      [
+        {
+          text: 'Zrušiť',
+          onPress: () => console.log('Odhlásenie zrušené'),
+          style: 'cancel',
+        },
+        {
+          text: 'Odhlásiť sa',
+          onPress: async () => {
+            try {
+              // Zavoláme funkciu na odhlásenie používateľa
+              await AuthService.logout();
+
+              // Presmerujeme používateľa na login stránku po odhlásení
+              navigation.navigate('Login'); // Toto presmerovanie závisí od vašich nastavení navigácie
+            } catch (error) {
+              console.error('Error logging out:', error);
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
 
   useEffect(() => {
   const fetchUser = async () => {
@@ -122,6 +152,9 @@ const Profile = () => {
         </TouchableOpacity>
         <TouchableOpacity style={themedStyles.button} onPress={toggleDarkMode}>
           <Text style={themedStyles.buttonText}>{darkMode ? 'Light Mode' : 'Dark Mode'}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={themedStyles.button} onPress={handleLogout} >
+          <Text style={themedStyles.buttonText}>Log Out</Text>
         </TouchableOpacity>
       </View>
     </View>

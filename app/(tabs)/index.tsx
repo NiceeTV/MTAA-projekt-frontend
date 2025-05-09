@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, TextStyle } from 'react-native';
 import { ThemeProvider } from './themecontext';
 import { AuthService } from "@/services/auth";
 import LoginPage from './loginpage';
@@ -24,12 +24,14 @@ import TripsFriend from './tripsfriend';
 import Notifications from './notifications';
 import Statistics from './statistics';
 import 'react-native-get-random-values';
+import { useTheme } from './themecontext';
 
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const { darkMode } = useTheme();
 
   useEffect(() => {
     const checkLoggedInStatus = async () => {
@@ -49,8 +51,18 @@ const AppNavigator = () => {
     );
   }
 
+  const screenOptionstest = {
+    headerStyle: {
+      backgroundColor: darkMode ? '#1e1e1e' : '#f2f2f2',
+    },
+    headerTintColor: darkMode ? '#ffffff' : '#000000',
+    headerTitleStyle: {
+      fontWeight: 'bold',
+    } as TextStyle,
+  };
+
   return (
-    <Stack.Navigator initialRouteName={isLoggedIn ? "Home" : "Login"}>
+    <Stack.Navigator initialRouteName={isLoggedIn ? "Home" : "Login"} screenOptions={screenOptionstest}>
       <Stack.Screen name="Login" component={LoginPage} options={{ headerShown: false }} />
       <Stack.Screen name="Register" component={Register} />
       <Stack.Screen name="Home" component={HomePage} options={{ headerShown: false }} />

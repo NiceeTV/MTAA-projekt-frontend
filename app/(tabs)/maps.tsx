@@ -7,6 +7,7 @@ import axios from "axios";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { AuthService } from '@/services/auth';
 import { api } from '@/api/client';
+import { useTheme } from './themecontext';
 
 import Constants from 'expo-constants';
 
@@ -38,6 +39,7 @@ const Maps = () => {
 	const [isSelectingFromAutocomplete, setIsSelectingFromAutocomplete] = useState(false);
 	const [selectedPoiInfo, setSelectedPoiInfo] = useState<{ name: string, coordinate: LatLng } | null>(null);
 	const [canMarker, setCanMarker] = useState(true);
+	const { darkMode } = useTheme();
 
 
 
@@ -193,6 +195,7 @@ const Maps = () => {
 		}
 	};
 
+	const styles = getStyles(darkMode);
 
 	return (
 		<View style={styles.container}>
@@ -212,6 +215,9 @@ const Maps = () => {
 						listView: styles.autocompleteList,
 						description: styles.description,
 					}}
+					textInputProps={{
+    					placeholderTextColor: darkMode ? '#aaa' : '#888',
+  					}}
 					enablePoweredByContainer={false}
 					debounce={200}
 					onFail={(error) => console.error('Autocomplete error:', error)}
@@ -325,110 +331,113 @@ const Maps = () => {
 		</View>
 	);
 };
+const getStyles = (dark: boolean) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 20,
+      backgroundColor: dark ? '#1a1a1a' : '#fff',
+      justifyContent: 'space-between',
+    },
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		padding: 20,
-		backgroundColor: '#fff',
-		justifyContent: 'space-between', // Zaručuje, že tlačidlá sú na spodnej časti
-	},
+    mapContainer: {
+      flex: 1,
+      borderRadius: 5,
+      overflow: 'hidden',
+      borderWidth: 1,
+      borderColor: dark ? '#555' : '#ccc',
+      marginBottom: 20,
+    },
+    map: {
+      width: '100%',
+      height: '100%',
+    },
+    buttonContainer: {
+      width: '100%',
+      gap: 10,
+    },
+    button: {
+      flexDirection: 'row',
+      height: 50,
+      borderColor: dark ? '#555' : '#333',
+      borderWidth: 2,
+      paddingLeft: 10,
+      paddingRight: 10,
+      borderRadius: 15,
+      backgroundColor: dark ? '#444' : 'white',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    buttonText: {
+      color: dark ? '#fff' : 'black',
+      fontSize: 18,
+      marginLeft: 5,
+      fontWeight: 'bold',
+    },
+    errorText: {
+      color: 'red',
+      fontSize: 14,
+      textAlign: 'center',
+      marginTop: 10,
+    },
+    loadingText: {
+      fontSize: 14,
+      textAlign: 'center',
+      marginTop: 10,
+      color: dark ? '#ccc' : '#000',
+    },
 
-	mapContainer: {
-		flex: 1, // Mapa teraz zaberie čo najviac miesta
-		borderRadius: 5,
-		overflow: 'hidden',
-		borderWidth: 1,
-		borderColor: '#ccc',
-		marginBottom: 20,
-	},
-	map: {
-		width: '100%',
-		height: '100%',
-	},
-	buttonContainer: {
-		width: '100%',
-		gap: 10,
-	},
-	button: {
-		flexDirection: 'row',
-		height: 50,
-		borderColor: '#333',
-		borderWidth: 2,
+    searchBarContainer: {
+      width: '100%',
+      flex: 1,
+      marginBottom: 50,
+    },
+    searchBar: {
+      height: 40,
+      borderWidth: 1,
+      borderColor: dark ? '#555' : '#ccc',
+      borderRadius: 8,
+      paddingHorizontal: 10,
+      fontSize: 16,
+      backgroundColor: dark ? '#2a2a2a' : '#fff',
+      color: dark ? '#fff' : '#000',
+    },
+    autocompleteList: {
+      position: 'absolute',
+      top: 40,
+      left: 0,
+      right: 0,
+      backgroundColor: dark ? '#2a2a2a' : '#fff',
+      borderWidth: 1,
+      borderRadius: 5,
+      borderColor: dark ? '#555' : '#ccc',
+      zIndex: 20,
+    },
+    description: {
+      fontSize: 14,
+      color: dark ? '#ccc' : '#333',
+      paddingVertical: 5,
+    },
+    poiInfoPanel: {
+      position: 'absolute',
+      bottom: 30,
+      left: 20,
+      right: 20,
+      backgroundColor: dark ? '#2a2a2a' : 'white',
+      padding: 15,
+      borderRadius: 10,
+      elevation: 5,
+    },
+    poiText: {
+      fontSize: 16,
+      fontWeight: '500',
+      color: dark ? '#fff' : '#000',
+    },
+    closeButton: {
+      color: dark ? '#66f' : 'blue',
+      marginTop: 10,
+    },
+  });
 
-		paddingLeft: 10,
-		paddingRight: 10,
-		borderRadius: 15,
-		backgroundColor: 'white',
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	buttonText: {
-		color: 'black',
-		fontSize: 18,
-		marginLeft: 5,
-		fontWeight: 'bold',
-	},
-	errorText: {
-		color: 'red',
-		fontSize: 14,
-		textAlign: 'center',
-		marginTop: 10,
-	},
-	loadingText: {
-		fontSize: 14,
-		textAlign: 'center',
-		marginTop: 10,
-	},
-
-	searchBarContainer: {
-		width: '100%',
-		flex: 1,
-		marginBottom: 50,
-	},
-	searchBar: {
-		height: 40,
-		borderWidth: 1,
-		borderColor: '#ccc',
-		borderRadius: 8,
-		paddingHorizontal: 10,
-		fontSize: 16,
-		backgroundColor: '#fff',
-	},
-	autocompleteList: {
-		position: 'absolute',
-		top: 40,
-		left: 0,
-		right: 0,
-		backgroundColor: '#fff',
-		borderWidth: 1,
-		borderRadius: 5,
-		borderColor: '#ccc',
-		zIndex: 20,
-	},
-	description: {
-		fontSize: 14,
-		color: '#333',
-		paddingVertical: 5,
-	},
-	poiInfoPanel: {
-		position: 'absolute',
-		bottom: 30,
-		left: 20,
-		right: 20,
-		backgroundColor: 'white',
-		padding: 15,
-		borderRadius: 10,
-		elevation: 5,
-	},
-	poiText: {
-		fontSize: 16,
-		fontWeight: '500',
-	},
-	closeButton: {
-		color: 'blue',
-		marginTop: 10,
-	}
-});
 
 export default Maps;
