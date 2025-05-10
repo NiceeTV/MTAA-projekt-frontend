@@ -1,6 +1,8 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import {AuthService} from "@/services/auth";
+import Constants from "expo-constants";
+const { API_BASE_URL } = Constants.expoConfig?.extra || {};
 
 
 const AUTH_TOKEN_KEY = 'auth_token';
@@ -8,12 +10,13 @@ const PUBLIC_ENDPOINTS = ['/users/login', '/users/register','/validate-token'];
 
 
 const apiClient = axios.create({
-    baseURL: "http://192.168.100.219:3000",
+    baseURL: API_BASE_URL,
     timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
     },
 });
+
 
 
 apiClient.interceptors.request.use(
@@ -33,6 +36,7 @@ apiClient.interceptors.request.use(
 const ensureLoggedIn = async (endpoint: string) => {
     const isPublic = PUBLIC_ENDPOINTS.some(publicPath => endpoint.startsWith(publicPath));
     if (isPublic) return;
+
 
     const loggedIn = await AuthService.isLoggedIn();
     if (!loggedIn) {
