@@ -5,6 +5,7 @@ import {useAppNavigation} from "@/app/navigation";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import {AuthService} from "@/services/auth";
 import {api} from "@/api/client";
+import { useTheme } from './themecontext';
 
 
 
@@ -20,6 +21,7 @@ const Markers = () => {
     const navigation = useAppNavigation()
     const [selected, setSelected] = useState<string[]>([]);
     const [myMarkers, setMyMarkers] = useState<any[]>([]);
+    const {darkMode} = useTheme();
 
 
     useEffect(() => {
@@ -88,17 +90,19 @@ const Markers = () => {
                     })}>
 
 
-                    <AntDesign name="arrowright" size={27} color="black" />
+                    <AntDesign name="arrowright" size={27} color={darkMode ? 'white' : 'black'} />
+
                 </TouchableOpacity>
             </TouchableOpacity>
         );
     };
+const styles = getStyles(darkMode);
 
     return (
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.title}>My markers</Text>
-                <Ionicons name="search" size={24} />
+                <Ionicons name="search" size={24} color={darkMode ? 'white' : 'black'} />
             </View>
 
             <FlatList
@@ -115,69 +119,71 @@ const Markers = () => {
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (dark: boolean) =>
+  StyleSheet.create({
     container: {
-        flex: 1,
-        padding: 16,
-        backgroundColor: 'white'
+      flex: 1,
+      padding: 16,
+      backgroundColor: dark ? '#1a1a1a' : '#fff',
     },
     header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 20,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 20,
     },
     title: {
-        fontSize: 24,
-        fontWeight: 'bold',
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: dark ? '#fff' : '#000',
     },
     list: {
-        paddingBottom: 20,
-        flex: 1,
-        borderRadius: 10
+      paddingBottom: 20,
+      flex: 1,
+      borderRadius: 10,
     },
     markerItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderRadius: 15,
-        paddingHorizontal: 10,
-
-        height: 60,
-        marginTop: 10,
-        marginHorizontal: 5,
-        borderWidth: 1,
-        borderColor: '#C3C3C3',
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderRadius: 20,
+      paddingHorizontal: 10,
+      height: 60,
+      marginTop: 10,
+      marginHorizontal: 5,
+      borderWidth: 2,
+      borderColor: dark ? '#555' : '#C3C3C3',
+      backgroundColor: dark ? '#444' : '#f9f9f9',
     },
     selectedMarkerItem: {
-        borderColor: '#199FFF',
-        borderWidth: 2,
-        paddingHorizontal: 10,
+      borderColor: '#199FFF',
+      borderWidth: 2,
     },
     markerText: {
-        flex: 1,
-        fontSize: 16,
+      flex: 1,
+      fontSize: 16,
+      color: dark ? '#fff' : '#000',
     },
     infoButton: {
-        paddingVertical: 6,
-        paddingHorizontal: 8,
-        borderRadius: 10,
-    },
-    infoButtonText: {
-        color: '#fff',
-        fontSize: 14,
+      paddingVertical: 6,
+      paddingHorizontal: 8,
+      borderRadius: 10,
     },
     button: {
-        backgroundColor: '#000',
-        padding: 16,
-        marginTop: 20,
-        borderRadius: 10,
-        alignItems: 'center',
+      backgroundColor: dark ? '#444' : '#fff',
+      borderColor: dark ? '#555' : '#333',
+      borderWidth: 2,
+      padding: 16,
+      marginTop: 20,
+      borderRadius: 20,
+      alignItems: 'center',
     },
     buttonText: {
-        color: '#fff',
-        fontSize: 16,
+      color: dark ? '#fff' : '#000',
+      fontSize: 16,
+      fontWeight: 'bold',
     },
-});
+  });
+
 
 export default Markers;
 

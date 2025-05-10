@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'reac
 import { useAppNavigation } from '../navigation';
 import { api } from '@/api/client';
 import { AxiosError } from 'axios';
+import { useTheme } from './themecontext';
 
 
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -16,6 +17,8 @@ const AddMarker = ({ route }: any) => {
 
   const [date, setDate] = React.useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
+  const {darkMode} = useTheme();
+  const styles = getStyles(darkMode);
 
 
 
@@ -85,6 +88,7 @@ const AddMarker = ({ route }: any) => {
         <TextInput
             style={styles.input}
             placeholder="Názov markeru"
+            placeholderTextColor={darkMode ? '#999' : '#888'}
             value={title}
             onChangeText={setTitle}
             editable={true} // Nech je title iba na zobrazenie
@@ -94,6 +98,7 @@ const AddMarker = ({ route }: any) => {
         <TextInput
             style={[styles.input, styles.descriptionInput]}
             placeholder="Popis"
+            placeholderTextColor={darkMode ? '#999' : '#888'}
             value={description}
             onChangeText={setDescription}
             multiline
@@ -129,79 +134,87 @@ const AddMarker = ({ route }: any) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-    justifyContent: 'flex-end', // Zabezpečí, že tlačidlo bude na spodku
-    alignItems: 'center',
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 15,
-    paddingHorizontal: 10,
-    fontSize: 16,
-    width: '100%',
-  },
-  descriptionInput: {
-    flex: 1,
-    width: '100%',
-    minHeight: 100,  // Začína od určitej výšky, ale môže rásť
-    maxHeight: '100%', // Nech sa nezastaví pred koncom obrazovky
-    textAlignVertical: 'top', // Aby text začínal zhora
-    padding: 10,
-    fontSize: 16,
-  },
-  dateBtn: {
-    backgroundColor: '#40C4FF',
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 15,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+const getStyles = (dark: boolean) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 20,
+      backgroundColor: dark ? '#1a1a1a' : '#fff',
+      justifyContent: 'flex-end',
+      alignItems: 'center',
+    },
+    header: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      marginBottom: 20,
+      textAlign: 'center',
+      color: dark ? '#fff' : '#000',
+    },
+    input: {
+  height: 40,
+  borderColor: dark ? '#555' : '#ccc',
+  borderWidth: 1,
+  borderRadius: 8,
+  marginBottom: 15,
+  paddingHorizontal: 10,
+  fontSize: 16,
+  width: '100%',
+  color: dark ? '#fff' : '#000', // Opravené
+  backgroundColor: dark ? '#333' : '#f9f9f9',
+},
 
-  dateButtonText: {
-    color: '#fff',
-    fontSize: 16,
-  },
-  selectedDate: {
-    fontSize: 16,
-    marginBottom: 15,
-    color: '#333',
-  },
-  button: {
-    height: 50,
-    borderColor: '#333',
-    borderWidth: 2,
-    width: '100%',
-    paddingLeft: 10,
-    paddingRight: 10,
-    borderRadius: 15,
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  submitButtonText: {
-    fontSize: 18,
-    color: 'black',
-  },
-  btnContainer: {
-    width: '100%',
-    gap: 10,
-    height: 120,
-  },
-});
+    descriptionInput: {
+      flex: 1,
+      width: '100%',
+      minHeight: 100,
+      maxHeight: '100%',
+      textAlignVertical: 'top',
+      padding: 10,
+      fontSize: 16,
+      color: dark ? '#fff' : '#000',
+      backgroundColor: dark ? '#333' : '#f9f9f9',
+    },
+    dateBtn: {
+      backgroundColor: dark ? '#0288D1' : '#40C4FF',
+      padding: 10,
+      borderRadius: 8,
+      marginBottom: 15,
+      height: 50,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    dateButtonText: {
+      color: '#fff',
+      fontSize: 16
+    },
+    selectedDate: {
+      fontSize: 16,
+      marginBottom: 15,
+      color: dark ? '#ccc' : '#333',
+    },
+    button: {
+      height: 50,
+      borderColor: dark ? '#777' : '#333',
+      borderWidth: 2,
+      width: '100%',
+      paddingLeft: 10,
+      paddingRight: 10,
+      borderRadius: 15,
+      backgroundColor: dark ? '#444' : '#fff',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    submitButtonText: {
+      fontSize: 18,
+      color: dark ? '#fff' : '#000',
+      fontWeight: 'bold'
+    },
+    btnContainer: {
+      width: '100%',
+      gap: 10,
+      height: 120,
+    },
+  });
+
 
 export default AddMarker;

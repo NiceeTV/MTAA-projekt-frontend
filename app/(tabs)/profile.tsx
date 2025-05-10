@@ -186,10 +186,15 @@ const getStyles = (dark: boolean) =>
       marginVertical: 10,
     },
     smallButton: {
-      backgroundColor: dark ? '#444' : '#e0e0e0',
+      backgroundColor: dark ? '#444' : '#fff',
+      borderColor: dark ? '#555' : '#333',
+      borderWidth: 2,
       paddingHorizontal: 20,
       paddingVertical: 8,
-      borderRadius: 15,
+      borderRadius: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 10,
     },
     smallButtonText: {
       color: dark ? '#fff' : '#000',
@@ -199,32 +204,38 @@ const getStyles = (dark: boolean) =>
       marginBottom: 30,
     },
     input: {
-      borderWidth: 1,
-      borderColor: dark ? '#666' : '#ccc',
-      borderRadius: 10,
+      borderWidth: 2,
+      borderColor: dark ? '#555' : '#333',
+      borderRadius: 20,
       padding: 15,
       fontSize: 16,
       height: 120,
       color: dark ? '#fff' : '#000',
-      backgroundColor: dark ? '#333' : '#f9f9f9',
+      backgroundColor: dark ? '#444' : '#f9f9f9',
       marginBottom: 10,
     },
     bottomSection: {
       flexDirection: 'row',
+      flexWrap: 'wrap',
       justifyContent: 'space-between',
     },
     button: {
       flex: 1,
-      backgroundColor: dark ? '#555' : '#333',
+      backgroundColor: dark ? '#444' : '#fff',
+      borderColor: dark ? '#555' : '#333',
+      borderWidth: 2,
       padding: 12,
       marginHorizontal: 5,
-      borderRadius: 10,
+      marginBottom: 10,
+      borderRadius: 20,
       alignItems: 'center',
+      justifyContent: 'center',
     },
     buttonText: {
-      color: '#fff',
+      color: dark ? '#fff' : '#000',
       fontWeight: '600',
     },
   });
+
 
 export default Profile;

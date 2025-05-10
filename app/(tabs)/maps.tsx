@@ -698,7 +698,7 @@ const Maps = ({ route }: any) => {
 											}
 											onPress={() => smoothZoom('in')}
 										>
-											<Entypo name="plus" size={30} color="black" />
+											<Entypo name="plus" size={30} color={darkMode ? "white" : "black"} />
 										</TouchableOpacity>
 
 										<View style={{ height: 1, width: '70%', backgroundColor: '#ccc' }} />
@@ -710,7 +710,7 @@ const Maps = ({ route }: any) => {
 											}
 											onPress={() => smoothZoom('out')}
 										>
-											<Entypo name="minus" size={24} color="black" />
+											<Entypo name="minus" size={24} color={darkMode ? "white" : "black"} />
 										</TouchableOpacity>
 									</View>
 
@@ -725,7 +725,7 @@ const Maps = ({ route }: any) => {
 											}
 										}}
 									>
-										<MaterialCommunityIcons name="target" size={24} color='black' />
+										<MaterialCommunityIcons name="target" size={24} color={darkMode ? "white" : "black"} />
 									</TouchableOpacity>
 
 
@@ -736,7 +736,7 @@ const Maps = ({ route }: any) => {
 											Alert.alert('Chyba', 'Táto funkcia ešte nie je dostupná.');
 										}}
 									>
-										<Text style={{fontSize: 20}}>AI</Text>
+										<Text style={{fontSize: 20, color: darkMode ? 'white' : 'black'}}>AI</Text>
 									</TouchableOpacity>
 								</View>
 
@@ -773,7 +773,7 @@ const Maps = ({ route }: any) => {
 
 
 									>
-									<Feather name="download" size={30} color="black" />
+									<Feather name="download" size={30} color={darkMode ? "white" : "black"} />
 
 								</TouchableOpacity>
 							</>
@@ -893,7 +893,7 @@ const getStyles = (dark: boolean) => StyleSheet.create({
 		alignItems: 'center',
 	},
 	buttonText: {
-		color: 'black',
+		color: dark ? 'white' : 'black',
 		fontSize: 18,
 		marginLeft: 5,
 		fontWeight: 'bold',
@@ -975,7 +975,7 @@ const getStyles = (dark: boolean) => StyleSheet.create({
 		alignItems: 'center',
 	},
 	mapBtn: {
-		backgroundColor: dark ? '#f2f2f2' : 'white',
+		backgroundColor: dark ? '#555' : 'white',
 		padding: 5,
 		borderRadius: 3,
 		alignItems: 'center',
@@ -986,7 +986,7 @@ const getStyles = (dark: boolean) => StyleSheet.create({
 		width: 40
 	},
 	mapBtnNoBorder: {
-		backgroundColor: dark ? '#f2f2f2' : 'white',
+		backgroundColor: dark ? '#555' : 'white',
 		padding: 5,
 		outline: 'black',
 		borderRadius: 0,
@@ -997,7 +997,7 @@ const getStyles = (dark: boolean) => StyleSheet.create({
 		position: 'absolute',
 		bottom: 15,
 		right: 15,
-		backgroundColor: dark ? '#f2f2f2' : 'white',
+		backgroundColor: dark ? '#555' : 'white',
 		padding: 5,
 		borderRadius: 3,
 		alignItems: 'center',
@@ -1027,7 +1027,7 @@ const getStyles = (dark: boolean) => StyleSheet.create({
 		flexDirection: 'column',
 		justifyContent: 'center',
 		alignItems: 'center',
-		backgroundColor: dark ? '#f2f2f2' : 'white',
+		backgroundColor: dark ? '#555' : 'white',
 		borderRadius: 3,
 		elevation: 2,
 		paddingBottom: 1

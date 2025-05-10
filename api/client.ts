@@ -8,7 +8,7 @@ const PUBLIC_ENDPOINTS = ['/users/login', '/users/register','/validate-token'];
 
 
 const apiClient = axios.create({
-    baseURL: "http://192.168.0.105:3000",
+    baseURL: "http://192.168.100.219:3000",
     timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
