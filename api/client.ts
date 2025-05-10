@@ -62,9 +62,7 @@ export const api = {
         await ensureLoggedIn(endpoint);
         try {
             const response = await apiClient.post(endpoint, data);
-            console.log(endpoint);
             return response.data;
-
 
         } catch (error) {
             console.error('API POST Error:', error);
@@ -76,8 +74,8 @@ export const api = {
         await ensureLoggedIn(endpoint);
         try {
             const response = await apiClient.put(endpoint, data);
-            console.log(endpoint);
             return response.data;
+
         } catch (error) {
             console.error('API PUT Error:', error);
             throw error;

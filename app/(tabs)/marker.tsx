@@ -4,6 +4,8 @@ import { useAppNavigation } from '../navigation';
 import { api } from '@/api/client';
 import { MarkerData } from '@/types/Marker';
 import { useTheme } from './themecontext';
+import {useOffline} from "@/context/OfflineContext";
+import * as SecureStore from "expo-secure-store";
 
 
 
@@ -21,21 +23,32 @@ const Marker = ({ route }: any) => {
 	const [date, setDate] = React.useState(new Date());
 	const {darkMode} = useTheme();
 	const styles = getStyles(darkMode);
-
+    const jeOffline = useOffline();
 
 
 
 	/* request na marker podla marker_id */
 	useEffect(() => {
 		const loadMarkers = async () => {
+
 			try {
-				console.log(marker_id);
-				const response = await api.get(`/markers/getMarkerByMarkerID/${marker_id}`);
+                let response;
+                if (!jeOffline) {
+                    response = await api.get(`/markers/getMarkerByMarkerID/${marker_id}`);
+                }
+                else {
+                    const markers = await SecureStore.getItemAsync('offlineMarkers');
+                    let markersJSON = [];
+                    if (markers) {
+                        markersJSON = JSON.parse(markers);
+                    }
+
+                    const filteredMarker = markersJSON.filter((marker: any) => marker.marker_id === marker_id);
+                    response = filteredMarker[0];
+                }
 
 
 				if (response) {
-					console.log(response);
-
 					const markerData: MarkerData = {
 						marker_id: response.marker_id,
 						marker_title: response.marker_title,
@@ -43,6 +56,7 @@ const Marker = ({ route }: any) => {
 						location_x: response.x_pos,
 						location_y: response.y_pos,
 					};
+
 
 					setMarkerData(markerData);
 
@@ -52,7 +66,6 @@ const Marker = ({ route }: any) => {
 
 					const tripDate = new Date(response.trip_date);
 					setDate(tripDate);
-
 				} else {
 					Alert.alert('Marker neexistuje', 'Takýto marker neexistuje alebo nepatrí používateľovi..');
 				}

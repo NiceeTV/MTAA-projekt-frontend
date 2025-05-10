@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef, useMemo} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {
 	View,
 	Text,
@@ -6,9 +6,6 @@ import {
 	TouchableOpacity,
 	Alert,
 	Keyboard,
-	InteractionManager,
-	Image,
-	ActivityIndicator
 } from 'react-native';
 import { useAppNavigation } from '../navigation';
 import MapView, {Marker, MapPressEvent, LatLng, Polyline, UrlTile, Region, Polygon} from 'react-native-maps';
@@ -20,8 +17,8 @@ import Feather from '@expo/vector-icons/Feather';
 
 
 
-
 import { useOffline } from '@/context/OfflineContext';
+import { useLocationPermission } from '@/context/PermissionProvider';
 
 
 import * as Location from 'expo-location';
@@ -46,12 +43,14 @@ const GOOGLE_MAPS_API_KEY = Constants.expoConfig?.extra?.googleMapsApiKey || '';
 
 
 
-const Maps = ({ route }: any) => {
+const Maps = React.memo(({ route }: any) => {
 	const navigation = useAppNavigation()
 	const params = route?.params;
 
 
 	const jeOffline = useOffline();
+	const { permissionGranted, requestPermission } = useLocationPermission();
+
 
 	const [myMarkers, setMyMarkers] = useState<any[]>([]);
 
@@ -73,13 +72,11 @@ const Maps = ({ route }: any) => {
 	const [region, setRegion] = useState<any>(null); // Bude obsahovať aktuálnu polohu
 	const [error, setError] = useState<string | null>(null);
 
-	const [locationPermission, setLocationPermission] = useState<boolean | null>(null);
 	const mapRef = useRef<MapView | null>(null);
 	const [isSelectingFromAutocomplete, setIsSelectingFromAutocomplete] = useState(false);
 	const [selectedPoiInfo, setSelectedPoiInfo] = useState<{ name: string, coordinate: LatLng } | null>(null);
 	const [canMarker, setCanMarker] = useState(true);
 
-	const [mapReady, setMapReady] = useState(false);
 	const [polylineCoords, setPolylineCoords] = useState<LatLng[]>([]);
 	const [multipleMarkerCoords, setMultipleMarkerCoords] = useState<LatLng[]>([]);
 	const [multipleMarkers, setMultipleMarkers] = useState<MarkerData[]>([]);
@@ -88,8 +85,6 @@ const Maps = ({ route }: any) => {
 
 
 	/*** OFFLINE REZIM ***/
-
-
 	const cacheTile = async (x: number, y: number, z: number) => {
 		const tileUrl = `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
 		const tilePath = `${CACHE_DIR}${z}_${x}_${y}.png`;
@@ -108,19 +103,6 @@ const Maps = ({ route }: any) => {
 		}
 	};
 
-
-	const getTileUrl = async (x: number, y: number, z: number) => {
-		const tilePath = `${CACHE_DIR}${z}_${x}_${y}.png`;
-		try {
-			const fileInfo = await FileSystem.getInfoAsync(tilePath);
-			return fileInfo.exists
-				? tilePath // Lokálna cesta k súboru
-				: `https://tile.openstreetmap.org/${z}/${x}/${y}.png`; // Online URL
-		} catch (error) {
-			console.error('Chyba pri načítaní dlaždice:', error);
-			return `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
-		}
-	};
 
 
 
@@ -182,29 +164,11 @@ const Maps = ({ route }: any) => {
 
 
 
-
-
-	const [tilesLoaded, setTilesLoaded] = useState(false);
-	const [zoom, setZoom] = useState(13); // Predvolený zoom level
-	const [latitude, setLatitude] = useState(35.2271); // Predvolená šírka (príklad)
-	const [longitude, setLongitude] = useState(-80.8431);
-
-	const [isCaching, setIsCaching] = useState(false);
+	const mapCustomStyle = [ { "elementType": "geometry", "stylers": [ { "color": "#242f3e" } ] }, { "elementType": "labels.text.fill", "stylers": [ { "color": "#746855" } ] }, { "elementType": "labels.text.stroke", "stylers": [ { "color": "#242f3e" } ] }, { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [ { "color": "#d59563" } ] }, { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [ { "color": "#d59563" } ] }, { "featureType": "poi.park", "elementType": "geometry", "stylers": [ { "color": "#263c3f" } ] }, { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [ { "color": "#6b9a76" } ] }, { "featureType": "road", "elementType": "geometry", "stylers": [ { "color": "#38414e" } ] }, { "featureType": "road", "elementType": "geometry.stroke", "stylers": [ { "color": "#212a37" } ] }, { "featureType": "road", "elementType": "labels.text.fill", "stylers": [ { "color": "#9ca5b3" } ] }, { "featureType": "road.highway", "elementType": "geometry", "stylers": [ { "color": "#746855" } ] }, { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [ { "color": "#1f2835" } ] }, { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [ { "color": "#f3d19c" } ] }, { "featureType": "transit", "elementType": "geometry", "stylers": [ { "color": "#2f3948" } ] }, { "featureType": "transit.station", "elementType": "labels.text.fill", "stylers": [ { "color": "#d59563" } ] }, { "featureType": "water", "elementType": "geometry", "stylers": [ { "color": "#17263c" } ] }, { "featureType": "water", "elementType": "labels.text.fill", "stylers": [ { "color": "#515c6d" } ] }, { "featureType": "water", "elementType": "labels.text.stroke", "stylers": [ { "color": "#17263c" } ] } ]
 
 
 
 
-
-
-
-
-	const saveMarkersToStorage = async (markers: MarkerData[]) => {
-		try {
-			await SecureStore.setItemAsync('offlineMarkers', JSON.stringify(markers));
-		} catch (error) {
-			console.error('Chyba pri ukladaní markerov:', error);
-		}
-	};
 
 
 	const loadMarkersFromStorage = async () => {
@@ -229,9 +193,7 @@ const Maps = ({ route }: any) => {
 
 			} else if (params.type === 'multiple') {
 				const multipleMarkers = params.markers;
-				InteractionManager.runAfterInteractions(() => {
-					drawMultipleMarkersWithPolyline(multipleMarkers);
-				});
+				drawMultipleMarkersWithPolyline(multipleMarkers);
 			}
 		}
 	}, [params]);
@@ -317,21 +279,23 @@ const Maps = ({ route }: any) => {
 					const response = await api.get(`/markers/getUserMarkers/${user_id}`);
 					if (response && response.length > 0) {
 						setMyMarkers(response);
-						saveMarkersToStorage(response);
+					}
+					else {
+						setMyMarkers([]);
+
 					}
 				} else {
-					loadMarkersFromStorage(); // Načítaj markery offline
+					await loadMarkersFromStorage();
 				}
 			} catch (error) {
 				console.error('Chyba pri načítaní markerov:', error);
 				Alert.alert('Chyba', 'Nepodarilo sa načítať markery.');
-				loadMarkersFromStorage(); // Pokus o načítanie offline dát
+				await loadMarkersFromStorage();
 			}
 		};
 
 		loadMarkers();
 	}, [jeOffline]);
-
 
 
 
@@ -358,16 +322,20 @@ const Maps = ({ route }: any) => {
 
 
 
+
 	useEffect(() => {
 		const getLocation = async () => {
 			try {
-				// Požiadať o povolenie na prístup k polohe
-				const { status } = await Location.requestForegroundPermissionsAsync();
-				if (status !== 'granted') {
-					setError('Permission to access location was denied');
-					return;
-				}
 
+				if (!permissionGranted) {
+					requestPermission(); /* ak nie je povolené, bude sa pýtať */
+				} else {
+					const { status } = await Location.requestForegroundPermissionsAsync();
+					if (status !== 'granted') {
+						setError('Permission to access location was denied');
+						return;
+					}
+				}
 
 				// Získanie aktuálnej polohy
 				const location = await Location.getCurrentPositionAsync({
@@ -391,14 +359,6 @@ const Maps = ({ route }: any) => {
 			}
 
 
-			/*if (!jeOffline) { //Cache dlaždíc pre aktuálnu oblasť
-				const zoom = 15; // Prispôsob podľa potreby
-				const x = Math.floor((userCoords.longitude + 180) / 360 * Math.pow(2, zoom));
-				const y = Math.floor((1 - Math.log(Math.tan(userCoords.latitude * Math.PI / 180) + 1 / Math.cos(userCoords.latitude * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
-				cacheTile(x, y, zoom);
-			}*/
-
-
 			} catch (error) {
 				let message = "Chyba pri získavaní polohy.";
 				if (axios.isAxiosError(error)) {
@@ -410,7 +370,7 @@ const Maps = ({ route }: any) => {
 		};
 
 		getLocation(); // Zavoláme funkciu na získanie polohy
-	}, [params, jeOffline]);
+	}, [userLocation]);
 
 
 
@@ -423,9 +383,11 @@ const Maps = ({ route }: any) => {
 		}
 	};
 
+
 	const handleDeleteMarker = () => {
 		setMarker(null);
 	};
+
 
 	const handleMapPress = (event: MapPressEvent) => {
 		if (isSelectingFromAutocomplete) return;
@@ -438,6 +400,7 @@ const Maps = ({ route }: any) => {
 		const { coordinate } = event.nativeEvent; // Získame súradnice kliknutia
 		handleAddMarker(coordinate);
 	};
+
 
 	const handlePlaceSelect = async (data: any, details: any) => {
 		setIsSelectingFromAutocomplete(true);
@@ -470,21 +433,18 @@ const Maps = ({ route }: any) => {
 
 	const centerOnUser = async () => {
 		try {
-			const { status } = await Location.requestForegroundPermissionsAsync();
-			if (status !== 'granted') {
-				console.warn('Permission to access location denied');
-				return;
+
+			if (userLocation) {
+				const region = {
+					latitude: userLocation.latitude,
+					longitude: userLocation.longitude,
+					latitudeDelta: 0.01,
+					longitudeDelta: 0.01,
+				};
+
+				mapRef.current?.animateToRegion(region, 500);
 			}
 
-			const location = await Location.getCurrentPositionAsync({});
-			const region = {
-				latitude: location.coords.latitude,
-				longitude: location.coords.longitude,
-				latitudeDelta: 0.01,
-				longitudeDelta: 0.01,
-			};
-
-			mapRef.current?.animateToRegion(region, 500);
 		} catch (error) {
 			console.error('Chyba pri získaní polohy:', error);
 		}
@@ -495,25 +455,18 @@ const Maps = ({ route }: any) => {
 		let steps = 5;
 		let delay = 40;
 
-		const zoomStep = (step: number, currentRegion: any) => {
-			if (step === 0) return;
 
-			const MIN_ZOOM = 0.002;
-			const MAX_ZOOM = 0.05;
+		const zoomStep = (step: number, currentRegion: any) => {
+			if (step === 0) {
+				return;
+			}
+
 
 			const nextRegion = {
 				...currentRegion,
 				latitudeDelta: currentRegion.latitudeDelta * factor,
 				longitudeDelta: currentRegion.longitudeDelta * factor,
 			};
-
-			if (nextRegion.latitudeDelta < MIN_ZOOM) {
-				nextRegion.latitudeDelta = MIN_ZOOM;
-				nextRegion.longitudeDelta = MIN_ZOOM;
-			} else if (nextRegion.latitudeDelta > MAX_ZOOM) {
-				nextRegion.latitudeDelta = MAX_ZOOM;
-				nextRegion.longitudeDelta = MAX_ZOOM;
-			}
 
 
 			mapRef.current?.animateToRegion(nextRegion, delay);
@@ -523,8 +476,10 @@ const Maps = ({ route }: any) => {
 			}, delay);
 		};
 
-		zoomStep(steps, region);
+		zoomStep(steps, initialRegion);
 	};
+
+
 
 	const clearCache = async () => {
 		try {
@@ -592,6 +547,7 @@ const Maps = ({ route }: any) => {
 								ref={mapRef}
 								style={styles.map}
 								region={region}
+								customMapStyle={darkMode ? mapCustomStyle : []}
 								onPress={handleMapPress}
 								onPoiClick={(e) => {
 									const { name, coordinate } = e.nativeEvent;
@@ -604,10 +560,7 @@ const Maps = ({ route }: any) => {
 									setMarker(coordinate);
 								}}
 								pointerEvents={isSelectingFromAutocomplete ? 'none' : 'auto'}
-								onRegionChangeComplete={(newRegion) => {
-									setRegion(newRegion);
-								}}
-
+								onRegionChangeComplete={(newRegion) => {setInitialRegion(newRegion);}}
 							>
 
 
@@ -643,7 +596,7 @@ const Maps = ({ route }: any) => {
 								)}
 
 
-								{myMarkers.map((marker, index) => (
+								{myMarkers.length > 0 && myMarkers.map((marker, index) => (
 									<Marker
 										key={index}
 										coordinate={{ latitude: marker.x_pos, longitude: marker.y_pos }}
@@ -693,11 +646,13 @@ const Maps = ({ route }: any) => {
 									<View style={styles.plusMinus}>
 
 										<TouchableOpacity
-											style={
-												styles.mapBtnNoBorder
-											}
-											onPress={() => smoothZoom('in')}
-										>
+											style={ styles.mapBtnNoBorder}
+
+											onPress={() => {
+												smoothZoom('in');
+												}
+											}>
+
 											<Entypo name="plus" size={30} color={darkMode ? "white" : "black"} />
 										</TouchableOpacity>
 
@@ -705,11 +660,13 @@ const Maps = ({ route }: any) => {
 
 
 										<TouchableOpacity
-											style={
-												styles.mapBtnNoBorder
+											style={styles.mapBtnNoBorder}
+
+											onPress={() => {
+												smoothZoom('out');
 											}
-											onPress={() => smoothZoom('out')}
-										>
+											}>
+
 											<Entypo name="minus" size={24} color={darkMode ? "white" : "black"} />
 										</TouchableOpacity>
 									</View>
@@ -722,6 +679,7 @@ const Maps = ({ route }: any) => {
 										onPress={() => {
 											if (userLocation) {
 												centerOnUser();
+												console.log("centrujem");
 											}
 										}}
 									>
@@ -749,9 +707,9 @@ const Maps = ({ route }: any) => {
 									}}
 								>
 									{isGridVisible ? (
-										<Entypo name="grid" size={30} color="black" />
+										<Entypo name="grid" size={30} color={darkMode ? 'white' : 'black'} />
 									) : (
-										<Feather name="grid" size={30} color="black" />
+										<Feather name="grid" size={30} color={darkMode ? 'white' : 'black'} />
 									)}
 								</TouchableOpacity>
 
@@ -769,8 +727,6 @@ const Maps = ({ route }: any) => {
 											cacheTile(x, y, zoom);
 										}
 									}}
-
-
 
 									>
 									<Feather name="download" size={30} color={darkMode ? "white" : "black"} />
@@ -847,8 +803,7 @@ const Maps = ({ route }: any) => {
 		</View>
 
 	);
-}
-
+})
 
 
 
@@ -1008,7 +963,7 @@ const getStyles = (dark: boolean) => StyleSheet.create({
 		position: 'absolute',
 		bottom: 65,
 		right: 15,
-		backgroundColor: dark ? '#f2f2f2' : 'white',
+		backgroundColor: dark ? '#555' : 'white',
 		padding: 5,
 		borderRadius: 3,
 		alignItems: 'center',

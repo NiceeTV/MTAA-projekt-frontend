@@ -7,6 +7,9 @@ import { useTheme } from './themecontext';
 
 
 import DateTimePicker from '@react-native-community/datetimepicker';
+import {MarkerData} from "@/types/Marker";
+import * as SecureStore from "expo-secure-store";
+import {useOffline} from "@/context/OfflineContext";
 
 const AddMarker = ({ route }: any) => {
   const navigation = useAppNavigation();
@@ -19,6 +22,8 @@ const AddMarker = ({ route }: any) => {
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const {darkMode} = useTheme();
   const styles = getStyles(darkMode);
+  const jeOffline = useOffline();
+
 
 
 
@@ -35,7 +40,15 @@ const AddMarker = ({ route }: any) => {
         marker_title: title,
         marker_description: description,
         trip_date: date.toISOString(),
+        marker_id: Date.now().toString(),
       };
+
+
+      if (!jeOffline) {
+        console.log("som tu?");
+        await saveMarkersToStorage(markerData);
+        return;
+      }
 
 
       /* backend api request */
@@ -54,6 +67,41 @@ const AddMarker = ({ route }: any) => {
       } else {
         console.error("Neznáma chyba:", error);
       }
+    }
+  };
+
+
+  const saveMarkersToStorage = async (markers: {
+    x_pos: any;
+    y_pos: any;
+    marker_title: string;
+    marker_description: string;
+    trip_date: string
+  }) => {
+    try {
+      console.log("idem ukladat: ", markers);
+
+      const storedMarkers = await SecureStore.getItemAsync('offlineMarkers');
+      let markersNew = [];
+
+      // Ak existujú nejaké markery, zparsingujeme ich, inak vytvoríme prázdny zoznam
+      if (storedMarkers) {
+        markersNew = JSON.parse(storedMarkers);
+      }
+
+      // Uistíme sa, že markersNew je pole
+      if (!Array.isArray(markersNew)) {
+        markersNew = [];
+      }
+
+      // Pridáme nový marker do zoznamu
+      markersNew.push(markers);
+
+
+      await SecureStore.setItemAsync('offlineMarkers', JSON.stringify(markersNew));
+      console.log(markers);
+    } catch (error) {
+      console.error('Chyba pri ukladaní markerov:', error);
     }
   };
 

@@ -27,6 +27,8 @@ import 'react-native-get-random-values';
 import { useTheme } from './themecontext';
 import { OfflineProvider } from '@/context/OfflineContext';
 import { AuthProvider } from '@/context/AuthProvider';
+import { LocationPermissionProvider } from '@/context/PermissionProvider';
+
 import * as Font from 'expo-font';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
@@ -119,13 +121,15 @@ const AppNavigator = () => {
 
 const Appl = () => {
   return (
-      <AuthProvider>
-          <OfflineProvider>
-              <ThemeProvider>
-                  <AppNavigator />
-              </ThemeProvider>
-          </OfflineProvider>
-      </AuthProvider>
+      <LocationPermissionProvider>
+          <AuthProvider>
+              <OfflineProvider>
+                  <ThemeProvider>
+                      <AppNavigator />
+                  </ThemeProvider>
+              </OfflineProvider>
+          </AuthProvider>
+      </LocationPermissionProvider>
   );
 };
 

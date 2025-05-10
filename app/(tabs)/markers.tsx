@@ -6,6 +6,9 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import {AuthService} from "@/services/auth";
 import {api} from "@/api/client";
 import { useTheme } from './themecontext';
+import { useOffline } from '@/context/OfflineContext';
+import {MarkerData} from "@/types/Marker";
+import * as SecureStore from "expo-secure-store";
 
 
 
@@ -22,35 +25,54 @@ const Markers = () => {
     const [selected, setSelected] = useState<string[]>([]);
     const [myMarkers, setMyMarkers] = useState<any[]>([]);
     const {darkMode} = useTheme();
+    const jeOffline = useOffline();
 
 
     useEffect(() => {
-        const loadMarkers = async () => {
-            try {
-                const user_id = await AuthService.getUserIdFromToken();
-
-                console.log(user_id);
-
-                const response = await api.get(`/markers/getUserMarkers/${user_id}`);
-
-                // Ak odpoveď obsahuje markery, uložíme ich do stavu
-                if (response && response.length > 0) {
-                    const simplifiedMarkers = response.map(({ marker_id, marker_title } : Marker) => ({
-                        marker_id,
-                        marker_title,
-                    }));
-
-                    setMyMarkers(simplifiedMarkers);
-                } else {
-                    Alert.alert('Žiadne markery', 'Pre tohto používateľa neexistujú žiadne markery.');
+        if (jeOffline) {
+            const loadMarkersFromStorage = async () => {
+                try {
+                    console.log("som tu");
+                    const markers = await SecureStore.getItemAsync('offlineMarkers');
+                    if (markers) {
+                        setMyMarkers(JSON.parse(markers));
+                    }
+                } catch (error) {
+                    console.error('Chyba pri načítaní markerov:', error);
                 }
-            } catch (error) {
-                console.error('Chyba pri načítaní markerov:', error);
-                Alert.alert('Chyba', 'Nepodarilo sa načítať markery.');
-            }
-        };
+            };
+            loadMarkersFromStorage();
+        }
+        else {
 
-        loadMarkers();
+            const loadMarkers = async () => {
+                try {
+                    const user_id = await AuthService.getUserIdFromToken();
+                    const response = await api.get(`/markers/getUserMarkers/${user_id}`);
+
+
+                    /* ak sú markery, tak ich uložíme */
+                    if (response && response.length > 0) {
+                        const simplifiedMarkers = response.map(({ marker_id, marker_title } : Marker) => ({
+                            marker_id,
+                            marker_title,
+                        }));
+                        setMyMarkers(simplifiedMarkers);
+                    }
+                    else {
+                        setMyMarkers([]);
+                    }
+                } catch (error) {
+                    console.error('Chyba pri načítaní markerov:', error);
+                    Alert.alert('Chyba', 'Nepodarilo sa načítať markery.');
+                }
+            };
+
+            loadMarkers();
+
+
+        }
+
     }, []);
 
 
@@ -96,7 +118,11 @@ const Markers = () => {
             </TouchableOpacity>
         );
     };
-const styles = getStyles(darkMode);
+
+
+    const styles = getStyles(darkMode);
+
+
 
     return (
         <View style={styles.container}>
@@ -105,12 +131,16 @@ const styles = getStyles(darkMode);
                 <Ionicons name="search" size={24} color={darkMode ? 'white' : 'black'} />
             </View>
 
+            {myMarkers && myMarkers.length > 0 ? (
             <FlatList
                 data={myMarkers}
                 keyExtractor={(item) => item.marker_id}
                 renderItem={renderItem}
                 contentContainerStyle={styles.list}
             />
+            ) : (
+            <Text style={styles.list}>Žiadne markery.</Text>
+            )}
 
             <TouchableOpacity style={styles.button}>
                 <Text style={styles.buttonText}>Add to trip</Text>
