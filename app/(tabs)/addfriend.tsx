@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useTheme } from './themecontext';  // Importujeme useTheme z ThemeContext
 import { api } from '@/api/client'; // Predpokladám, že api je správne importované
+import { useAppNavigation } from '../navigation';
 
 const AddFriend = () => {
   const [username, setUsername] = useState<string>(''); // Stav pre meno používateľa
   const [searchResults, setSearchResults] = useState<any[]>([]); // Stav pre výsledky hľadania
   const [loading, setLoading] = useState<boolean>(false); // Stav pre načítavanie
   const { darkMode } = useTheme();  // Používame hook na prístup k téme
+  const navigation = useAppNavigation();
 
   // Funkcia na vyhľadávanie používateľov podľa mena
   const searchUsers = async () => {
@@ -40,9 +42,15 @@ const AddFriend = () => {
   const renderItem = ({ item }: { item: any }) => (
     <View style={styles(darkMode).item}>
       <Text style={styles(darkMode).itemText}>{item.username}</Text>
-      <TouchableOpacity style={styles(darkMode).infoButton}>
-        <Text style={styles(darkMode).infoButtonText}>Add</Text>
-      </TouchableOpacity>
+      <TouchableOpacity
+  style={styles(darkMode).infoButton}
+  onPress={() => navigation.navigate('ProfileFriend', {
+    username: item.username,
+    id: item.id
+  })}
+>
+  <Text style={styles(darkMode).infoButtonText}>Add</Text>
+</TouchableOpacity>
     </View>
   );
 
