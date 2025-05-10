@@ -80,5 +80,20 @@ export const api = {
             console.error('API PUT Error:', error);
             throw error;
         }
+    },
+
+    delete: async (endpoint: string, data: any) => {
+    await ensureLoggedIn(endpoint);
+    try {
+        const response = await apiClient.delete(endpoint, {
+            data, // This is where you pass the data in the body of the DELETE request
+        });
+        console.log(endpoint);
+        return response.data;
+    } catch (error) {
+        console.error('API DELETE Error:', error);
+        throw error;
     }
+}
+
 };

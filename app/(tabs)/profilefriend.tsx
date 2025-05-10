@@ -32,6 +32,26 @@ const ProfileFriend = () => {
     fetchFriendData();
   }, [id]);
 
+  const unfriend = async () => {
+    try {
+      // API call to delete the friend
+      const response = await api.delete('/deleteFriend', { friend_to_delete_id: id } // Correct field name
+      );
+      navigation.replace("Friends");
+
+      if (response.status === 200) {
+        navigation.replace("Friends");
+        // After successfully unfriending, go back to the friends list or any other screen
+        console.log(response.data.message); // If you want to log the success message
+        // Or navigate to another screen as needed
+      }
+    } catch (error) {
+      console.error('Error unfriending:', error);
+      navigation.replace("Friends");
+    }
+};
+
+
   const themedStyles = getStyles(darkMode);
 
   return (
@@ -60,7 +80,7 @@ const ProfileFriend = () => {
           <Text style={themedStyles.buttonText}>Trips</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={themedStyles.button} onPress={() => console.log('Unfriend action')}>
+        <TouchableOpacity style={themedStyles.button} onPress={unfriend}>
           <Text style={themedStyles.buttonText}>Unfriend</Text>
         </TouchableOpacity>
       </View>

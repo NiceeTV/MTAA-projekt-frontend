@@ -1,29 +1,34 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { api } from '@/api/client';
 import { useTheme } from './themecontext';
 
-// Definícia typu pre notifikáciu
 type Notification = {
   notification_id: number;
   sender_id: number;
   target_id: number;
   trip_id: number | null;
   created_at: string;
-  type: 'trip_share' | 'friend_request'; // Typy notifikácií
+  type: 'trip_share' | 'friend_request';
 };
 
 const Notifications = () => {
   const { darkMode } = useTheme();
-  const [notifications, setNotifications] = useState<Notification[]>([]); // Typ pre state
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [usernames, setUsernames] = useState<{ [key: number]: string }>({});
 
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
         const response = await api.get('/notifications');
-        setNotifications(response.data);
+        if (Array.isArray(response)) {
+          setNotifications(response);
+        } else {
+          setNotifications([]);
+          console.warn('Očakávalo sa pole, ale odpoveď bola: ', response);
+        }
       } catch (error) {
         setError('Chyba pri načítavaní notifikácií');
         console.error('Error fetching notifications:', error);
@@ -35,7 +40,104 @@ const Notifications = () => {
     fetchNotifications();
   }, []);
 
+  useEffect(() => {
+    const fetchFriendData = async (sender_id: number) => {
+      try {
+        const response = await api.get(`/users/${sender_id}`);
+        if (response.username) {
+          setUsernames(prev => ({ ...prev, [sender_id]: response.username }));
+        }
+      } catch (error) {
+        console.error("Error fetching sender's username:", error);
+      }
+    };
+
+    notifications.forEach(notification => {
+      fetchFriendData(notification.sender_id);
+    });
+  }, [notifications]);
+
   const themedStyles = getStyles(darkMode);
+
+  const handleAccept = async (notificationId: number, senderId: number) => {
+  try {
+    await api.put('/friendshipResponse', {
+      sender_id: senderId,
+      action: 'accept',
+    });
+
+    // Odstráň notifikáciu zo zoznamu
+    setNotifications(prev => prev.filter(n => n.notification_id !== notificationId));
+  } catch (error) {
+    console.error('Chyba pri prijímaní žiadosti o priateľstvo:', error);
+  }
+};
+
+const handleReject = async (notificationId: number, senderId: number) => {
+  try {
+    await api.put('/friendshipResponse', {
+      sender_id: senderId,
+      action: 'decline',
+    });
+
+    // Remove notification from the list
+    setNotifications(prev => prev.filter(n => n.notification_id !== notificationId));
+  } catch (error: unknown) {
+    console.error('Chyba pri odmietnutí žiadosti o priateľstvo:', error);
+    
+    // Type-guard to check if it's an instance of Error
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+    } else {
+      console.error('Unexpected error:', error);
+    }
+  }
+};
+
+
+
+
+  const renderNotification = ({ item }: { item: Notification }) => {
+    const username = usernames[item.sender_id];
+    let notificationText = '';
+
+    switch (item.type) {
+      case 'friend_request':
+        notificationText = `Máte žiadosť o priateľstvo od používateľa ${username || 'Neznámy'}`;
+        break;
+      case 'trip_share':
+        notificationText = `Používateľ ${username || 'Neznámy'} zdieľal výzvu na cestu`;
+        break;
+      default:
+        notificationText = 'Neznáma notifikácia';
+    }
+
+    return (
+      <View style={themedStyles.notificationContainer}>
+        <Text style={themedStyles.notificationTitle}>Notifikácia od používateľa {username}</Text>
+        <Text style={themedStyles.notificationBody}>{notificationText}</Text>
+        <Text style={themedStyles.notificationDate}>{new Date(item.created_at).toLocaleString()}</Text>
+
+        {item.type === 'friend_request' && (
+          <View style={themedStyles.buttonRow}>
+           <TouchableOpacity
+  style={[themedStyles.button, themedStyles.acceptButton]}
+  onPress={() => handleAccept(item.notification_id, item.sender_id)}
+>
+  <Text style={themedStyles.buttonText}>Prijať</Text>
+</TouchableOpacity>
+<TouchableOpacity
+  style={[themedStyles.button, themedStyles.rejectButton]}
+  onPress={() => handleReject(item.notification_id, item.sender_id)}
+>
+  <Text style={themedStyles.buttonText}>Odmietnuť</Text>
+</TouchableOpacity>
+
+          </View>
+        )}
+      </View>
+    );
+  };
 
   if (loading) {
     return (
@@ -52,30 +154,6 @@ const Notifications = () => {
       </View>
     );
   }
-
-  const renderNotification = ({ item }: { item: Notification }) => {
-    let notificationText = '';
-
-    // Zobrazenie rôznych typov notifikácií
-    switch (item.type) {
-      case 'friend_request':
-        notificationText = `Máte žiadosť o priateľstvo od používateľa ${item.sender_id}`;
-        break;
-      case 'trip_share':
-        notificationText = `Používateľ ${item.sender_id} zdieľal výzvu na cestu`;
-        break;
-      default:
-        notificationText = 'Neznáma notifikácia';
-    }
-
-    return (
-      <View style={themedStyles.notificationContainer}>
-        <Text style={themedStyles.notificationTitle}>Notifikácia od používateľa {item.sender_id}</Text>
-        <Text style={themedStyles.notificationBody}>{notificationText}</Text>
-        <Text style={themedStyles.notificationDate}>{new Date(item.created_at).toLocaleString()}</Text>
-      </View>
-    );
-  };
 
   return (
     <View style={themedStyles.container}>
@@ -149,6 +227,26 @@ const getStyles = (dark: boolean) =>
       fontSize: 12,
       color: dark ? '#bbb' : '#666',
       marginTop: 5,
+    },
+    buttonRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      marginTop: 10,
+    },
+    button: {
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+      borderRadius: 8,
+    },
+    acceptButton: {
+      backgroundColor: '#4CAF50',
+    },
+    rejectButton: {
+      backgroundColor: '#F44336',
+    },
+    buttonText: {
+      color: '#fff',
+      fontWeight: '600',
     },
   });
 

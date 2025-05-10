@@ -1,32 +1,37 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { useTheme } from './themecontext';  // Importujeme useTheme z ThemeContext
-import { api } from '@/api/client'; // Predpokladám, že api je správne importované
+import {
+  View,
+  Text,
+  FlatList,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
+import { useTheme } from './themecontext';
+import { api } from '@/api/client';
 import { useAppNavigation } from '../navigation';
 
 const AddFriend = () => {
   const [username, setUsername] = useState<string>(''); // Stav pre meno používateľa
   const [searchResults, setSearchResults] = useState<any[]>([]); // Stav pre výsledky hľadania
   const [loading, setLoading] = useState<boolean>(false); // Stav pre načítavanie
-  const { darkMode } = useTheme();  // Používame hook na prístup k téme
+  const [sendingIds, setSendingIds] = useState<number[]>([]); // Stav pre práve odosielané žiadosti
+  const { darkMode } = useTheme();
   const navigation = useAppNavigation();
 
-  // Funkcia na vyhľadávanie používateľov podľa mena
+  // Vyhľadanie používateľov
   const searchUsers = async () => {
-    if (!username.trim()) {
-      return; // Ak je prázdny reťazec, nerob nič
-    }
-
-    setLoading(true); // Nastavíme, že načítavame
+    if (!username.trim()) return;
+    setLoading(true);
     try {
       const responseData = await api.get(`/users/search/${username}`);
-      console.log('Odpoveď z API:', responseData); // Zobrazíme odpoveď v konzole
-
       if (Array.isArray(responseData)) {
-        setSearchResults(responseData); // Nastavíme výsledky hľadania
+        setSearchResults(responseData);
       } else {
         console.error('Odpoveď nie je v očakávanom formáte');
-        setSearchResults([]); // Ak je odpoveď neplatná, nastavíme prázdne pole
+        setSearchResults([]);
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -35,21 +40,40 @@ const AddFriend = () => {
         console.error('Neznáma chyba pri vyhľadávaní používateľov');
       }
     } finally {
-      setLoading(false); // Po skončení načítavania, vypneme indikátor
+      setLoading(false);
     }
   };
 
+  // Odoslanie žiadosti o priateľstvo
+  const sendFriendRequest = async (target_user_id: number) => {
+    setSendingIds((prev) => [...prev, target_user_id]);
+    try {
+      const response = await api.post('/sendFriendRequest', { target_user_id });
+      Alert.alert('Úspech', 'Žiadosť bola odoslaná.');
+    } catch (error: any) {
+      if (error.response?.data?.error) {
+        Alert.alert('Chyba', error.response.data.error);
+      } else {
+        Alert.alert('Chyba', 'Nepodarilo sa odoslať žiadosť.');
+      }
+    } finally {
+      setSendingIds((prev) => prev.filter((id) => id !== target_user_id));
+    }
+  };
+
+  // Render jedného výsledku
   const renderItem = ({ item }: { item: any }) => (
     <View style={styles(darkMode).item}>
       <Text style={styles(darkMode).itemText}>{item.username}</Text>
       <TouchableOpacity
-  style={styles(darkMode).infoButton}
-  onPress={() => navigation.navigate('ProfileFriend', {
-    id: item.id
-  })}
->
-  <Text style={styles(darkMode).infoButtonText}>Add</Text>
-</TouchableOpacity>
+        style={styles(darkMode).infoButton}
+        onPress={() => sendFriendRequest(item.id)}
+        disabled={sendingIds.includes(item.id)}
+      >
+        <Text style={styles(darkMode).infoButtonText}>
+          {sendingIds.includes(item.id) ? 'Sending...' : 'Add'}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -63,24 +87,27 @@ const AddFriend = () => {
         style={styles(darkMode).searchInput}
         placeholder="Vyhľadaj priateľa"
         value={username}
-        onChangeText={setUsername} 
+        onChangeText={setUsername}
         placeholderTextColor={darkMode ? '#888' : '#777'}
       />
-      <TouchableOpacity style={styles(darkMode).button} onPress={searchUsers} disabled={loading}>
+
+      <TouchableOpacity
+        style={styles(darkMode).button}
+        onPress={searchUsers}
+        disabled={loading}
+      >
         <Text style={styles(darkMode).buttonText}>Search</Text>
       </TouchableOpacity>
 
-      {loading && <ActivityIndicator size="large" color={darkMode ? "#fff" : "#000"} />}
+      {loading && <ActivityIndicator size="large" color={darkMode ? '#fff' : '#000'} />}
 
-      {Array.isArray(searchResults) && searchResults.length > 0 ? (
+      {Array.isArray(searchResults) && searchResults.length > 0 && (
         <FlatList
           data={searchResults}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
           contentContainerStyle={styles(darkMode).list}
         />
-      ) : (
-        !loading
       )}
     </View>
   );
@@ -168,7 +195,5 @@ const styles = (dark: boolean) =>
       fontWeight: 'bold',
     },
   });
-
-
 
 export default AddFriend;
