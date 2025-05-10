@@ -26,12 +26,18 @@ import Statistics from './statistics';
 import 'react-native-get-random-values';
 import { useTheme } from './themecontext';
 import { OfflineProvider } from '@/context/OfflineContext';
-
+import { AuthProvider } from '@/context/AuthProvider';
+import * as Font from 'expo-font';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Entypo } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 const Stack = createStackNavigator();
+
+
 
 const AppNavigator = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const { darkMode } = useTheme();
 
   useEffect(() => {
@@ -39,12 +45,33 @@ const AppNavigator = () => {
       const loggedIn = await AuthService.isLoggedIn();
       setIsLoggedIn(loggedIn);
       setIsLoading(false);
+        console.log("tu som?");
     };
 
     checkLoggedInStatus();
   }, []);
 
-  if (isLoading) {
+
+
+
+    const [fontsLoaded, setFontsLoaded] = useState(false);
+
+    useEffect(() => {
+        const loadFonts = async () => {
+            await Font.loadAsync({
+                ...MaterialCommunityIcons.font,
+                ...Entypo.font,
+                ...Feather.font,
+            });
+            setFontsLoaded(true);
+        };
+
+        loadFonts();
+    }, []);
+
+
+
+  if (isLoading || !fontsLoaded) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#0000ff" />
@@ -90,11 +117,13 @@ const AppNavigator = () => {
 
 const Appl = () => {
   return (
-      <OfflineProvider>
-          <ThemeProvider>
-              <AppNavigator />
-          </ThemeProvider>
-      </OfflineProvider>
+      <AuthProvider>
+          <OfflineProvider>
+              <ThemeProvider>
+                  <AppNavigator />
+              </ThemeProvider>
+          </OfflineProvider>
+      </AuthProvider>
   );
 };
 

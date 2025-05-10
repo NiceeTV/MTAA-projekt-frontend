@@ -11,7 +11,7 @@ import {
 	ActivityIndicator
 } from 'react-native';
 import { useAppNavigation } from '../navigation';
-import MapView, {Marker, MapPressEvent, LatLng, Polyline, UrlTile, Region} from 'react-native-maps';
+import MapView, {Marker, MapPressEvent, LatLng, Polyline, UrlTile, Region, Polygon} from 'react-native-maps';
 import * as SecureStore from 'expo-secure-store';
 import * as FileSystem from 'expo-file-system';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -37,6 +37,7 @@ import Constants from 'expo-constants';
 
 
 
+
 // Konštanta pre OpenStreetMap dlaždice
 const TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const CACHE_DIR = `${FileSystem.documentDirectory}mapTiles/`;
@@ -55,6 +56,7 @@ const Maps = ({ route }: any) => {
 	const [myMarkers, setMyMarkers] = useState<any[]>([]);
 
 	const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+	const [isGridVisible, setIsGridVisible] = useState(false);
 
 	const [userLocation, setUserLocation] = useState<LatLng | null>(null);
 	const [marker, setMarker] = useState<LatLng | null>(null);
@@ -88,22 +90,94 @@ const Maps = ({ route }: any) => {
 	/*** OFFLINE REZIM ***/
 
 
+	const cacheTile = async (x: number, y: number, z: number) => {
+		const tileUrl = `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
+		const tilePath = `${CACHE_DIR}${z}_${x}_${y}.png`;
+
+		try {
+			// Skontroluj, či dlaždica už existuje
+			const fileInfo = await FileSystem.getInfoAsync(tilePath);
+			if (!fileInfo.exists) {
+				await FileSystem.makeDirectoryAsync(CACHE_DIR, { intermediates: true });
+				await FileSystem.downloadAsync(tileUrl, tilePath);
+
+				console.log("uložená dlaždica na: ", tileUrl);
+			}
+		} catch (error) {
+			console.error('Chyba pri cachovaní dlaždice:', error);
+		}
+	};
+
+
+	const getTileUrl = async (x: number, y: number, z: number) => {
+		const tilePath = `${CACHE_DIR}${z}_${x}_${y}.png`;
+		try {
+			const fileInfo = await FileSystem.getInfoAsync(tilePath);
+			return fileInfo.exists
+				? tilePath // Lokálna cesta k súboru
+				: `https://tile.openstreetmap.org/${z}/${x}/${y}.png`; // Online URL
+		} catch (error) {
+			console.error('Chyba pri načítaní dlaždice:', error);
+			return `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
+		}
+	};
 
 
 
+	function tile2latlngBounds(x: number, y: number, z: number): [[number, number], [number, number]] {
+		const n = Math.pow(2, z);
+		const lonLeft = (x / n) * 360 - 180;
+		const lonRight = ((x + 1) / n) * 360 - 180;
+
+		function tile2lat(y: number) {
+			const rad = Math.PI - (2 * Math.PI * y) / n;
+			return (180 / Math.PI) * Math.atan(0.5 * (Math.exp(rad) - Math.exp(-rad)));
+		}
+
+		const latTop = tile2lat(y);
+		const latBottom = tile2lat(y + 1);
+
+		return [
+			[latBottom, lonLeft], // southwest
+			[latTop, lonRight],   // northeast
+		];
+	}
 
 
+	const loadCachedTiles = async () => {
+		const files = await FileSystem.readDirectoryAsync(CACHE_DIR);
+		const tiles: PolygonData[] = [];
 
+		files.forEach((file) => {
+			const match = file.match(/^(\d+)_(\d+)_(\d+)\.png$/);
+			if (match) {
+				const [_, z, x, y] = match.map(Number);
+				const [[south, west], [north, east]] = tile2latlngBounds(x, y, z);
 
+				tiles.push({
+					id: file,
+					coordinates: [
+						{ latitude: north, longitude: west },
+						{ latitude: north, longitude: east },
+						{ latitude: south, longitude: east },
+						{ latitude: south, longitude: west },
+					],
+				});
+			}
+		});
 
+		return tiles;
+	};
 
+	type PolygonData = {
+		id: string;
+		coordinates: { latitude: number; longitude: number }[];
+	};
 
-
-
-
-
-
-
+	const [tilePolygons, setTilePolygons] = useState<PolygonData[]>([]);
+	useEffect(() => {
+		loadCachedTiles().then(setTilePolygons);
+	}, []);
 
 
 
@@ -243,9 +317,7 @@ const Maps = ({ route }: any) => {
 					const response = await api.get(`/markers/getUserMarkers/${user_id}`);
 					if (response && response.length > 0) {
 						setMyMarkers(response);
-						saveMarkersToStorage(response); // Ulož markery do AsyncStorage
-					} else {
-						Alert.alert('Žiadne markery', 'Pre tohto používateľa neexistujú žiadne markery.');
+						saveMarkersToStorage(response);
 					}
 				} else {
 					loadMarkersFromStorage(); // Načítaj markery offline
@@ -426,11 +498,22 @@ const Maps = ({ route }: any) => {
 		const zoomStep = (step: number, currentRegion: any) => {
 			if (step === 0) return;
 
+			const MIN_ZOOM = 0.002;
+			const MAX_ZOOM = 0.05;
+
 			const nextRegion = {
 				...currentRegion,
 				latitudeDelta: currentRegion.latitudeDelta * factor,
 				longitudeDelta: currentRegion.longitudeDelta * factor,
 			};
+
+			if (nextRegion.latitudeDelta < MIN_ZOOM) {
+				nextRegion.latitudeDelta = MIN_ZOOM;
+				nextRegion.longitudeDelta = MIN_ZOOM;
+			} else if (nextRegion.latitudeDelta > MAX_ZOOM) {
+				nextRegion.latitudeDelta = MAX_ZOOM;
+				nextRegion.longitudeDelta = MAX_ZOOM;
+			}
 
 
 			mapRef.current?.animateToRegion(nextRegion, delay);
@@ -528,6 +611,24 @@ const Maps = ({ route }: any) => {
 							>
 
 
+								<UrlTile
+									urlTemplate={TILE_URL}
+									tileSize={256}
+									zIndex={1}
+									tileCachePath={CACHE_DIR}
+									tileCacheMaxAge={60 * 60 * 24 * 30} // 30 dní
+									offlineMode={jeOffline} // Offline režim, ak nie je pripojenie
+								/>
+
+								{isGridVisible && tilePolygons.map((tile) => (
+									<Polygon
+										key={tile.id}
+										coordinates={tile.coordinates}
+										strokeColor="red"
+										strokeWidth={1}
+										fillColor="rgba(255, 0, 0, 0.1)"
+									/>
+								))}
 
 
 								{marker && <Marker coordinate={marker} />}
@@ -627,6 +728,7 @@ const Maps = ({ route }: any) => {
 										<MaterialCommunityIcons name="target" size={24} color='black' />
 									</TouchableOpacity>
 
+
 									<TouchableOpacity
 										activeOpacity={0.8}
 										style={styles.mapBtn}
@@ -638,10 +740,35 @@ const Maps = ({ route }: any) => {
 									</TouchableOpacity>
 								</View>
 
+
+								<TouchableOpacity
+									activeOpacity={0.8}
+									style={styles.mapBtnGrid}
+									onPress={() => {
+										setIsGridVisible(!isGridVisible);
+									}}
+								>
+									{isGridVisible ? (
+										<Entypo name="grid" size={30} color="black" />
+									) : (
+										<Feather name="grid" size={30} color="black" />
+									)}
+								</TouchableOpacity>
+
+
 								<TouchableOpacity
 									activeOpacity={0.8}
 									style={styles.mapBtnDownload}
+									onPress={() => {
+										if (!jeOffline) {
+											const zoom = Math.round(Math.log(360 / region.longitudeDelta) / Math.LN2);
 
+											const x = Math.floor((region.longitude + 180) / 360 * Math.pow(2, zoom));
+											const y = Math.floor((1 - Math.log(Math.tan((region.latitude * Math.PI) / 180) + 1
+													/ Math.cos((region.latitude * Math.PI) / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
+											cacheTile(x, y, zoom);
+										}
+									}}
 
 
 
@@ -877,7 +1004,17 @@ const getStyles = (dark: boolean) => StyleSheet.create({
 		justifyContent: 'center',
 		elevation: 2,
 	},
-
+	mapBtnGrid: {
+		position: 'absolute',
+		bottom: 65,
+		right: 15,
+		backgroundColor: dark ? '#f2f2f2' : 'white',
+		padding: 5,
+		borderRadius: 3,
+		alignItems: 'center',
+		justifyContent: 'center',
+		elevation: 2,
+	},
 	mapBtn_Container: {
 		position: 'absolute',
 		flexDirection: 'column',

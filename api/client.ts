@@ -1,7 +1,11 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import {AuthService} from "@/services/auth";
+
 
 const AUTH_TOKEN_KEY = 'auth_token';
+const PUBLIC_ENDPOINTS = ['/users/login', '/users/register','/validate-token'];
+
 
 const apiClient = axios.create({
     baseURL: "http://192.168.0.105:3000",
@@ -25,8 +29,22 @@ apiClient.interceptors.request.use(
     }
 );
 
+
+const ensureLoggedIn = async (endpoint: string) => {
+    const isPublic = PUBLIC_ENDPOINTS.some(publicPath => endpoint.startsWith(publicPath));
+    if (isPublic) return;
+
+    const loggedIn = await AuthService.isLoggedIn();
+    if (!loggedIn) {
+        throw new Error("User is not logged in. Request blocked.");
+    }
+};
+
+
+
 export const api = {
     get: async (endpoint: string) => {
+        await ensureLoggedIn(endpoint);
         try {
             const response = await apiClient.get(endpoint);
             return response.data;
@@ -37,6 +55,7 @@ export const api = {
     },
 
     post: async (endpoint: string, data: any) => {
+        await ensureLoggedIn(endpoint);
         try {
             const response = await apiClient.post(endpoint, data);
             console.log(endpoint);
@@ -50,6 +69,7 @@ export const api = {
     },
 
     put: async (endpoint: string, data: any) => {
+        await ensureLoggedIn(endpoint);
         try {
             const response = await apiClient.put(endpoint, data);
             console.log(endpoint);
