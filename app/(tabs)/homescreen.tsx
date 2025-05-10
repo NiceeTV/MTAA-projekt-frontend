@@ -32,7 +32,7 @@ const HomePage = () => {
             <Ionicons name="person-circle" size={30} color={darkMode ? '#fff' : '#000'} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={themedStyles.button} onPress={() => {}}>
+          <TouchableOpacity style={themedStyles.button} onPress={() => {navigation.navigate("Notifications")}}>
             <Text style={themedStyles.buttonText}>Notifications</Text>
             <Ionicons name="notifications" size={30} color={darkMode ? '#fff' : '#000'} />
           </TouchableOpacity>

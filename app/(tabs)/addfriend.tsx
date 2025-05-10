@@ -45,7 +45,6 @@ const AddFriend = () => {
       <TouchableOpacity
   style={styles(darkMode).infoButton}
   onPress={() => navigation.navigate('ProfileFriend', {
-    username: item.username,
     id: item.id
   })}
 >

@@ -22,10 +22,10 @@ export type RootStackParamList = {
   Friends: undefined;
   Marker: { marker_id: string };
   Markers: undefined;
-  ProfileFriend: {id: number; username: string};
+  ProfileFriend: {id: number};
   Trip: undefined;
   TripsFriend: undefined;
-  StatisticsFriend: undefined;
+  StatisticsFriend: {id: number};
   Notifications: undefined;
   Statistics: undefined;
 };

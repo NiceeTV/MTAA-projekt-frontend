@@ -42,10 +42,12 @@ const AppNavigator = () => {
 
   useEffect(() => {
     const checkLoggedInStatus = async () => {
+      setIsLoading(true);
       const loggedIn = await AuthService.isLoggedIn();
       setIsLoggedIn(loggedIn);
       setIsLoading(false);
         console.log("tu som?");
+      console.log("Zistený login status:", loggedIn);
     };
 
     checkLoggedInStatus();

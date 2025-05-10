@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { api } from '@/api/client';
-import { AuthService } from '@/services/auth';
 import { useTheme } from './themecontext';  // Importujeme useTheme z ThemeContext
 import { RootStackParamList } from '../navigation';
 
