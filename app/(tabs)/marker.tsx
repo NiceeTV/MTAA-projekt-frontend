@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'reac
 import { useAppNavigation } from '../navigation';
 import { api } from '@/api/client';
 import { MarkerData } from '@/types/Marker';
+import { useTheme } from './themecontext';
 
 
 
@@ -18,6 +19,9 @@ const Marker = ({ route }: any) => {
 	const [description, setDescription] = useState<string>(''); // Popis
 
 	const [date, setDate] = React.useState(new Date());
+	const {darkMode} = useTheme();
+	const styles = getStyles(darkMode);
+
 
 
 
@@ -65,7 +69,7 @@ const Marker = ({ route }: any) => {
 	 return (
 		 <View style={styles.container}>
 			 <View style={styles.title_container}>
-				 <Text style={styles.header}>Pridať marker</Text>
+				 <Text style={styles.header}>Marker</Text>
 
 				 <TouchableOpacity style={styles.title_btn} onPress={() => {
 					 if (markerData !== null) {
@@ -108,74 +112,80 @@ const Marker = ({ route }: any) => {
 	 );
 };
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		padding: 20,
-		backgroundColor: '#fff',
-		justifyContent: 'flex-end', // Zabezpečí, že tlačidlo bude na spodku
-		alignItems: 'center',
-	},
-	title_container: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		marginBottom: 20,
-		width: '100%',
-	},
-	title_btn: {
-		borderWidth: 1,
-		borderColor: '#ccc',
-		borderRadius: 10,
-		paddingHorizontal: 15,
-		paddingVertical: 5,
-		alignItems: 'center',
-		justifyContent: 'center',
-	},
-	buttonText: {
+const getStyles = (dark: boolean) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 20,
+      backgroundColor: dark ? '#1a1a1a' : '#fff',  // Tmavá alebo svetlá farba pozadia
+      justifyContent: 'flex-end', // Zabezpečí, že tlačidlo bude na spodku
+      alignItems: 'center',
+    },
+    title_container: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 20,
+      width: '100%',
+    },
+    title_btn: {
+      borderWidth: 1,
+      borderColor: dark ? '#555' : '#ccc',  // Tmavá alebo svetlá farba okraja
+      borderRadius: 10,
+      paddingHorizontal: 15,
+      paddingVertical: 5,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    buttonText: {
+      color: dark ? '#fff' : '#000',  // Farba textu podľa režimu
+    },
+    header: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: dark ? '#fff' : '#000',  // Farba textu hlavičky podľa režimu
+    },
+    input: {
+      height: 40,
+      borderColor: dark ? '#555' : '#ccc',  // Tmavá alebo svetlá farba okraja
+      borderWidth: 1,
+      borderRadius: 8,
+      marginBottom: 15,
+      paddingHorizontal: 10,
+      fontSize: 16,
+      width: '100%',
+      color: dark ? '#fff' : '#000',  // Farba textu vo vstupe podľa režimu
+      backgroundColor: dark ? '#333' : '#f9f9f9',  // Farba pozadia vstupu
+    },
+    descriptionInput: {
+      flex: 1,
+      width: '100%',
+      minHeight: 100,  // Začína od určitej výšky, ale môže rásť
+      maxHeight: '100%', // Nech sa nezastaví pred koncom obrazovky
+      textAlignVertical: 'top', // Aby text začínal zhora
+      padding: 10,
+      fontSize: 16,
+      color: dark ? '#fff' : '#000',  // Farba textu podľa režimu
+      backgroundColor: dark ? '#333' : '#f9f9f9',  // Farba pozadia podľa režimu
+    },
+    selectedDate: {
+      fontSize: 16,
+      marginBottom: 15,
+      color: dark ? '#ccc' : '#333',  // Farba textu dátumu podľa režimu
+    },
+    button: {
+      height: 50,
+      borderColor: dark ? '#777' : '#333',  // Tmavá alebo svetlá farba okraja
+      borderWidth: 2,
+      width: '100%',
+      paddingLeft: 10,
+      paddingRight: 10,
+      borderRadius: 15,
+      backgroundColor: dark ? '#444' : '#fff',  // Tmavá alebo svetlá farba pozadia
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+  });
 
-	},
-	header: {
-		fontSize: 24,
-		fontWeight: 'bold',
-
-	},
-	input: {
-		height: 40,
-		borderColor: '#ccc',
-		borderWidth: 1,
-		borderRadius: 8,
-		marginBottom: 15,
-		paddingHorizontal: 10,
-		fontSize: 16,
-		width: '100%',
-	},
-	descriptionInput: {
-		flex: 1,
-		width: '100%',
-		minHeight: 100,  // Začína od určitej výšky, ale môže rásť
-		maxHeight: '100%', // Nech sa nezastaví pred koncom obrazovky
-		textAlignVertical: 'top', // Aby text začínal zhora
-		padding: 10,
-		fontSize: 16,
-	},
-	selectedDate: {
-		fontSize: 16,
-		marginBottom: 15,
-		color: '#333',
-	},
-	button: {
-		height: 50,
-		borderColor: '#333',
-		borderWidth: 2,
-		width: '100%',
-		paddingLeft: 10,
-		paddingRight: 10,
-		borderRadius: 15,
-		backgroundColor: 'white',
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-});
 
 export default Marker;

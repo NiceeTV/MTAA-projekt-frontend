@@ -65,7 +65,7 @@ const AppNavigator = () => {
   return (
     <Stack.Navigator initialRouteName={isLoggedIn ? "Home" : "Login"} screenOptions={screenOptionstest}>
       <Stack.Screen name="Login" component={LoginPage} options={{ headerShown: false }} />
-      <Stack.Screen name="Register" component={Register} />
+      <Stack.Screen name="Register" component={Register} options={{ headerShown: false }}/>
       <Stack.Screen name="Home" component={HomePage} options={{ headerShown: false }} />
       <Stack.Screen name="Map" component={Maps} />
       <Stack.Screen name="Profile" component={Profile} />

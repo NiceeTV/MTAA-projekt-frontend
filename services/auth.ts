@@ -52,6 +52,26 @@ export const AuthService = {
         }
     },
 
+    async getUsernameFromToken() {
+        interface MyJwtPayload {
+            userId: number;
+            username: string;
+            exp: number;
+            iat: number;
+        }
+
+        try {
+            const token = await this.getToken();
+            if (token) {
+                const decoded = jwtDecode<MyJwtPayload>(token);
+                return decoded.username || null;
+            }
+        } catch (error) {
+            console.error('Chyba pri dekódovaní tokenu:', error);
+            return null;
+        }
+    },
+
 
     async saveToken(token: string) {
         await SecureStore.setItemAsync(AUTH_TOKEN_KEY, token);
