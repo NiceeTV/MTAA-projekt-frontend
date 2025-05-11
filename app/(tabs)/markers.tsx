@@ -7,90 +7,136 @@ import {AuthService} from "@/services/auth";
 import {api} from "@/api/client";
 import { useTheme } from './themecontext';
 import { useOffline } from '@/context/OfflineContext';
-import {MarkerData} from "@/types/Marker";
+import {addTripMarker, MarkerData} from "@/types/Marker";
 import * as SecureStore from "expo-secure-store";
 
 
 
-type Marker = {
-    marker_id: string;
-    marker_title: string;
-};
 
-
-
-
-const Markers = () => {
+const Markers = ({route} : any) => {
     const navigation = useAppNavigation()
-    const [selected, setSelected] = useState<string[]>([]);
-    const [myMarkers, setMyMarkers] = useState<any[]>([]);
+    const [selected, setSelected] = useState<addTripMarker[]>([]);
+    const [myMarkers, setMyMarkers] = useState<addTripMarker[]>([]);
+
+
     const {darkMode} = useTheme();
     const jeOffline = useOffline();
 
+    const { marker_ids, trip_id } = route.params;
+
 
     useEffect(() => {
-        if (jeOffline) {
-            const loadMarkersFromStorage = async () => {
-                try {
-                    console.log("som tu");
-                    const markers = await SecureStore.getItemAsync('offlineMarkers');
-                    if (markers) {
-                        setMyMarkers(JSON.parse(markers));
+        if (marker_ids) {
+            if (jeOffline) {
+                const loadMarkersFromStorage = async () => {
+                    try {
+                        const markers = await SecureStore.getItemAsync('offlineMarkers');
+                        if (markers) {
+                            setMyMarkers(JSON.parse(markers));
+                        }
+                    } catch (error) {
+                        console.error('Chyba pri načítaní markerov:', error);
                     }
-                } catch (error) {
-                    console.error('Chyba pri načítaní markerov:', error);
-                }
-            };
-            loadMarkersFromStorage();
+                };
+                loadMarkersFromStorage();
+            }
+            else {
+
+                const loadMarkers = async () => {
+                    try {
+                        const user_id = await AuthService.getUserIdFromToken();
+                        const response = await api.get(`/markers/getUserMarkers/${user_id}`);
+
+
+                        /* ak sú markery, tak ich uložíme */
+                        if (response && response.length > 0) {
+                            const simplifiedMarkers: addTripMarker[] = response.map((item: any) => ({
+                                marker_id: String(item.marker_id),
+                                marker_title: item.marker_title,
+                                marker_date: item.trip_date,
+                            }));
+                            setMyMarkers(simplifiedMarkers);
+                        }
+                        else {
+                            setMyMarkers([]);
+                        }
+                    } catch (error) {
+                        console.error('Chyba pri načítaní markerov:', error);
+                        Alert.alert('Chyba', 'Nepodarilo sa načítať markery.');
+                    }
+                };
+                loadMarkers();
+            }
         }
-        else {
-
-            const loadMarkers = async () => {
-                try {
-                    const user_id = await AuthService.getUserIdFromToken();
-                    const response = await api.get(`/markers/getUserMarkers/${user_id}`);
-
-
-                    /* ak sú markery, tak ich uložíme */
-                    if (response && response.length > 0) {
-                        const simplifiedMarkers = response.map(({ marker_id, marker_title } : Marker) => ({
-                            marker_id,
-                            marker_title,
-                        }));
-                        setMyMarkers(simplifiedMarkers);
-                    }
-                    else {
-                        setMyMarkers([]);
-                    }
-                } catch (error) {
-                    console.error('Chyba pri načítaní markerov:', error);
-                    Alert.alert('Chyba', 'Nepodarilo sa načítať markery.');
-                }
-            };
-
-            loadMarkers();
-
-
-        }
-
     }, []);
 
 
-    console.log(myMarkers);
+    useEffect(() => {
+        if (trip_id) {
+            const filterMarkers = async () => {
+                const response = await api.get(`/markers/${trip_id}`);
+                if (response) {
+                    const mappedMarkers: addTripMarker[] = response.map((marker: any) => ({
+                        marker_id: marker.marker_id.toString(),
+                        marker_title: marker.marker_title,
+                        marker_date: marker.trip_date,
+                        isNew: false
+                    }));
+
+                    setMyMarkers(mappedMarkers);
+                }
+            }
+            filterMarkers();
+        }
+    }, []);
 
 
-    const toggleSelect = (id: string) => {
+
+
+
+    const toggleSelect = (marker: addTripMarker) => {
         setSelected((prev) =>
-            prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+            prev.some(m => m.marker_id === marker.marker_id)
+                ? prev.filter(m => m.marker_id !== marker.marker_id)
+                : [...prev, marker]
         );
     };
 
-    const renderItem = ({ item }: { item: Marker }) => {
-        const isSelected = selected.includes(item.marker_id);
+    useEffect(() => {
+        if (marker_ids) {
+            const toggleSelectMarkers = (ids: addTripMarker[]) => {
+                ids.forEach((marker) => {
+                    setSelected((prev) => {
+                        if (prev.some(m => m.marker_id === marker.marker_id)) return prev;
+                        return [...prev, marker];
+                    });
+                });
+            };
+
+            if (marker_ids?.length > 0 && myMarkers.length > 0) {
+                const matchedMarkers = myMarkers.filter(m =>
+                    marker_ids.some((id: any) => id.marker_id === m.marker_id)
+                );
+                toggleSelectMarkers(matchedMarkers);
+            }
+        }
+    }, [myMarkers]);
+
+
+
+    const renderItem = ({ item }: { item: addTripMarker }) => {
+        const isSelected = (marker_ids) ? selected.some((s) => s.marker_id === item.marker_id) : false;
 
         return (
             <TouchableOpacity
-                onPress={() => toggleSelect(item.marker_id)}
+                onPress={() => {
+
+                    if (marker_ids) {
+                        toggleSelect(item);
+                    }
+
+
+                }}
                 style={[
                     styles.markerItem,
                     isSelected && styles.selectedMarkerItem,
@@ -126,24 +172,32 @@ const Markers = () => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.title}>My markers</Text>
+                <Text style={styles.title}>{trip_id ? "Trip markers" : "My markers"}</Text>
                 <Ionicons name="search" size={24} color={darkMode ? 'white' : 'black'} />
             </View>
 
             {myMarkers && myMarkers.length > 0 ? (
-            <FlatList
+            <FlatList<addTripMarker>
                 data={myMarkers}
                 keyExtractor={(item) => item.marker_id}
                 renderItem={renderItem}
                 contentContainerStyle={styles.list}
             />
             ) : (
-            <Text style={styles.list}>Žiadne markery.</Text>
+            <Text style={[styles.list, {color: darkMode ? 'white' : 'black'}]}>Žiadne markery.</Text>
             )}
 
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Add to trip</Text>
-            </TouchableOpacity>
+
+            {marker_ids && (
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => {
+                        navigation.popTo("AddTrip", {markers: selected});
+                    }}
+                >
+                    <Text style={styles.buttonText}>Add to trip</Text>
+                </TouchableOpacity>
+            )}
         </View>
     );
 }

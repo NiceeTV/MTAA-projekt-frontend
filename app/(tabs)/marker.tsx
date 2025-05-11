@@ -6,6 +6,8 @@ import { MarkerData } from '@/types/Marker';
 import { useTheme } from './themecontext';
 import {useOffline} from "@/context/OfflineContext";
 import * as SecureStore from "expo-secure-store";
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import {AuthService} from "@/services/auth";
 
 
 
@@ -57,7 +59,6 @@ const Marker = ({ route }: any) => {
 						location_y: response.y_pos,
 					};
 
-
 					setMarkerData(markerData);
 
 					/* načítame z response dáta */
@@ -79,6 +80,72 @@ const Marker = ({ route }: any) => {
 	}, []);
 
 
+    const askDelete = (): Promise<boolean> => {
+        return new Promise((resolve) => {
+            Alert.alert(
+                'Potvrdiť vymazanie',
+                'Skutočne chcete vymazať tento marker?',
+                [
+                    {
+                        text: 'Zrušiť',
+                        onPress: () => {
+                            console.log('Zmazanie zrušené');
+                            resolve(false);
+                        },
+                        style: 'cancel',
+                    },
+                    {
+                        text: 'Zmazať',
+                        onPress: () => {
+                            resolve(true);
+                        },
+                    },
+                ],
+                { cancelable: false }
+            );
+        });
+    };
+
+
+
+
+    const deleteMarker = async () => {
+        const result = await askDelete();
+        if (!result) return;
+
+        try {
+            if (!jeOffline) {
+                const response = await api.delete(`/markers/${marker_id}`,{});
+
+                if (response) {
+                    Alert.alert("Úspech", "Marker bol úspešne vymazaný.")
+                }
+            }
+            else {
+                const markers = await SecureStore.getItemAsync('offlineMarkers');
+
+                let newMarkers: MarkerData[] = [];
+
+                if (markers) {
+                    newMarkers = JSON.parse(markers);
+                }
+
+                const updatedMarkers = newMarkers.filter(marker => marker.marker_id !== marker_id);
+                await SecureStore.setItemAsync('offlineMarkers', JSON.stringify(updatedMarkers));
+
+                Alert.alert("Úspech", "Marker bol úspešne vymazaný.")
+            }
+
+            navigation.navigate('Map');
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+
+
+
+
 	 return (
 		 <View style={styles.container}>
 			 <View style={styles.title_container}>
@@ -95,10 +162,15 @@ const Marker = ({ route }: any) => {
 				 >
 					 <Text style={styles.buttonText}>Ukázať na mape</Text>
 				 </TouchableOpacity>
+
+
+                 <TouchableOpacity onPress={deleteMarker}>
+                    <FontAwesome name="trash" size={30} color={darkMode ? 'white' : 'black'} />
+                 </TouchableOpacity>
 			 </View>
 
 
-			 {/* Predvyplnený title */}
+
 			 <TextInput
 				 style={styles.input}
 				 placeholder="Názov markeru"

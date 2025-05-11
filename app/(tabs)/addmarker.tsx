@@ -44,9 +44,10 @@ const AddMarker = ({ route }: any) => {
       };
 
 
-      if (!jeOffline) {
-        console.log("som tu?");
+      if (jeOffline) {
         await saveMarkersToStorage(markerData);
+        Alert.alert("Úspech", "Marker bol úspešne pridaný.")
+        navigation.goBack();
         return;
       }
 
@@ -79,8 +80,6 @@ const AddMarker = ({ route }: any) => {
     trip_date: string
   }) => {
     try {
-      console.log("idem ukladat: ", markers);
-
       const storedMarkers = await SecureStore.getItemAsync('offlineMarkers');
       let markersNew = [];
 
@@ -99,7 +98,6 @@ const AddMarker = ({ route }: any) => {
 
 
       await SecureStore.setItemAsync('offlineMarkers', JSON.stringify(markersNew));
-      console.log(markers);
     } catch (error) {
       console.error('Chyba pri ukladaní markerov:', error);
     }

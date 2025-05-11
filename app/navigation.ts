@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import {MarkerData} from "@/types/Marker";
+import {addTripMarker, MarkerData} from "@/types/Marker";
 
 
 
@@ -17,11 +17,11 @@ export type RootStackParamList = {
   AddMarker: { latitude: number; longitude: number; name: string };
   TripImagesTest: undefined;
   AddFriend: undefined;
-  AddTrip: { markers: MarkerData[] };
+  AddTrip: { markers: addTripMarker[] } | undefined;
   Chat: undefined;
   Friends: undefined;
   Marker: { marker_id: string };
-  Markers: undefined;
+  Markers: { marker_ids: addTripMarker[] } | { trip_id: string } |undefined;
   ProfileFriend: {id: number};
   Trip: { trip_id: string };
   TripsFriend: undefined;

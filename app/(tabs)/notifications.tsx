@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { api } from '@/api/client';
 import { useTheme } from './themecontext';
+import {useOffline} from "@/context/OfflineContext";
 
 type Notification = {
   notification_id: number;
@@ -18,43 +19,49 @@ const Notifications = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [usernames, setUsernames] = useState<{ [key: number]: string }>({});
+  const jeOffline = useOffline();
+
+
 
   useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await api.get('/notifications');
-        if (Array.isArray(response)) {
-          setNotifications(response);
-        } else {
-          setNotifications([]);
-          console.warn('Očakávalo sa pole, ale odpoveď bola: ', response);
+    if (!jeOffline) {
+      const fetchNotifications = async () => {
+        try {
+          const response = await api.get('/notifications');
+          if (Array.isArray(response)) {
+            setNotifications(response);
+          } else {
+            setNotifications([]);
+            console.warn('Očakávalo sa pole, ale odpoveď bola: ', response);
+          }
+        } catch (error) {
+          setError('Chyba pri načítavaní notifikácií');
+          console.error('Error fetching notifications:', error);
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        setError('Chyba pri načítavaní notifikácií');
-        console.error('Error fetching notifications:', error);
-      } finally {
-        setLoading(false);
       }
-    };
-
-    fetchNotifications();
+      fetchNotifications();
+    }
   }, []);
 
   useEffect(() => {
-    const fetchFriendData = async (sender_id: number) => {
-      try {
-        const response = await api.get(`/users/${sender_id}`);
-        if (response.username) {
-          setUsernames(prev => ({ ...prev, [sender_id]: response.username }));
+    if (!jeOffline) {
+      const fetchFriendData = async (sender_id: number) => {
+        try {
+          const response = await api.get(`/users/${sender_id}`);
+          if (response.username) {
+            setUsernames(prev => ({ ...prev, [sender_id]: response.username }));
+          }
+        } catch (error) {
+          console.error("Error fetching sender's username:", error);
         }
-      } catch (error) {
-        console.error("Error fetching sender's username:", error);
-      }
-    };
+      };
 
-    notifications.forEach(notification => {
-      fetchFriendData(notification.sender_id);
-    });
+      notifications.forEach(notification => {
+        fetchFriendData(notification.sender_id);
+      });
+    }
   }, [notifications]);
 
   const themedStyles = getStyles(darkMode);
@@ -158,7 +165,7 @@ const handleReject = async (notificationId: number, senderId: number) => {
   return (
     <View style={themedStyles.container}>
       <Text style={themedStyles.title}>Notifikácie</Text>
-      {notifications.length === 0 ? (
+      {notifications.length === 0 || jeOffline ? (
         <Text style={themedStyles.noNotificationsText}>Tento používateľ nemá žiadne notifikácie.</Text>
       ) : (
         <FlatList

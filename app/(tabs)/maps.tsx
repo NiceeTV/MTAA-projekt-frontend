@@ -88,15 +88,17 @@ const Maps = React.memo(({ route }: any) => {
 	const cacheTile = async (x: number, y: number, z: number) => {
 		const tileUrl = `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
 		const tilePath = `${CACHE_DIR}${z}_${x}_${y}.png`;
+		console.log("Tile path:", tilePath);
+
+		console.log("stahujem");
 
 		try {
 			// Skontroluj, či dlaždica už existuje
 			const fileInfo = await FileSystem.getInfoAsync(tilePath);
 			if (!fileInfo.exists) {
 				await FileSystem.makeDirectoryAsync(CACHE_DIR, { intermediates: true });
-				await FileSystem.downloadAsync(tileUrl, tilePath);
-
-				console.log("uložená dlaždica na: ", tileUrl);
+				const downloadResult = await FileSystem.downloadAsync(tileUrl, tilePath);
+				console.log("Stiahnuté:", downloadResult);
 			}
 		} catch (error) {
 			console.error('Chyba pri cachovaní dlaždice:', error);
@@ -162,13 +164,7 @@ const Maps = React.memo(({ route }: any) => {
 	}, []);
 
 
-
-
 	const mapCustomStyle = [ { "elementType": "geometry", "stylers": [ { "color": "#242f3e" } ] }, { "elementType": "labels.text.fill", "stylers": [ { "color": "#746855" } ] }, { "elementType": "labels.text.stroke", "stylers": [ { "color": "#242f3e" } ] }, { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [ { "color": "#d59563" } ] }, { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [ { "color": "#d59563" } ] }, { "featureType": "poi.park", "elementType": "geometry", "stylers": [ { "color": "#263c3f" } ] }, { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [ { "color": "#6b9a76" } ] }, { "featureType": "road", "elementType": "geometry", "stylers": [ { "color": "#38414e" } ] }, { "featureType": "road", "elementType": "geometry.stroke", "stylers": [ { "color": "#212a37" } ] }, { "featureType": "road", "elementType": "labels.text.fill", "stylers": [ { "color": "#9ca5b3" } ] }, { "featureType": "road.highway", "elementType": "geometry", "stylers": [ { "color": "#746855" } ] }, { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [ { "color": "#1f2835" } ] }, { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [ { "color": "#f3d19c" } ] }, { "featureType": "transit", "elementType": "geometry", "stylers": [ { "color": "#2f3948" } ] }, { "featureType": "transit.station", "elementType": "labels.text.fill", "stylers": [ { "color": "#d59563" } ] }, { "featureType": "water", "elementType": "geometry", "stylers": [ { "color": "#17263c" } ] }, { "featureType": "water", "elementType": "labels.text.fill", "stylers": [ { "color": "#515c6d" } ] }, { "featureType": "water", "elementType": "labels.text.stroke", "stylers": [ { "color": "#17263c" } ] } ]
-
-
-
-
 
 
 	const loadMarkersFromStorage = async () => {
@@ -181,8 +177,6 @@ const Maps = React.memo(({ route }: any) => {
 			console.error('Chyba pri načítaní markerov:', error);
 		}
 	};
-
-
 
 
 	useEffect(() => {
@@ -268,9 +262,6 @@ const Maps = React.memo(({ route }: any) => {
 	};
 
 
-
-
-
 	useEffect(() => {
 		const loadMarkers = async () => {
 			try {
@@ -299,7 +290,6 @@ const Maps = React.memo(({ route }: any) => {
 
 
 
-
 	useEffect(() => {
 		const keyboardDidShowListener = Keyboard.addListener(
 			'keyboardDidShow',
@@ -319,7 +309,6 @@ const Maps = React.memo(({ route }: any) => {
 			keyboardDidHideListener.remove();
 		};
 	}, []);
-
 
 
 
@@ -719,11 +708,11 @@ const Maps = React.memo(({ route }: any) => {
 									style={styles.mapBtnDownload}
 									onPress={() => {
 										if (!jeOffline) {
-											const zoom = Math.round(Math.log(360 / region.longitudeDelta) / Math.LN2);
+											const zoom = Math.round(Math.log(360 / initialRegion.longitudeDelta) / Math.LN2);
 
-											const x = Math.floor((region.longitude + 180) / 360 * Math.pow(2, zoom));
-											const y = Math.floor((1 - Math.log(Math.tan((region.latitude * Math.PI) / 180) + 1
-													/ Math.cos((region.latitude * Math.PI) / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
+											const x = Math.floor((initialRegion.longitude + 180) / 360 * Math.pow(2, zoom));
+											const y = Math.floor((1 - Math.log(Math.tan((initialRegion.latitude * Math.PI) / 180) + 1
+													/ Math.cos((initialRegion.latitude * Math.PI) / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
 											cacheTile(x, y, zoom);
 										}
 									}}

@@ -2,32 +2,35 @@ import React, {useEffect, useState} from 'react';
 import {View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Image, FlatList, ScrollView} from 'react-native';
 import { useAppNavigation } from '../navigation';
 import { api, getBaseUrl } from '@/api/client';
-import axios, { AxiosError } from 'axios';
 import { useTheme } from './themecontext';
 
-import * as FileSystem from 'expo-file-system';
 
-import {MarkerData} from "@/types/Marker";
+import {addTripMarker} from "@/types/Marker";
 import {useOffline} from "@/context/OfflineContext";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
 import {Picker} from "@react-native-picker/picker";
 import {AuthService} from "@/services/auth";
+import * as SecureStore from 'expo-secure-store';
 
 
 
 const AddTrip = ({ route }: any) => {
     const navigation = useAppNavigation();
-    const { Markers } = route?.params;
+    const { Markers } = route.params?.markers;
 
 
-    const [tripMarkers, setTripMarkers] = useState<MarkerData[]>([]);
+    const [tripMarkers, setTripMarkers] = useState<addTripMarker[]>([]);
+
 
     useEffect(() => {
-        if (Markers) {
-            setTripMarkers(Markers);
+        if (route.params?.markers) {
+            setTripMarkers(route.params?.markers);
         }
-    }, [Markers]);
+
+    }, [route.params?.markers]);
+
+
 
 
     const [title, setTitle] = useState<string>(''); // Predvyplnený title, ak existuje
@@ -40,18 +43,12 @@ const AddTrip = ({ route }: any) => {
 
 
 
-    const markers: Marker[] = [
-        { marker_id: '1', marker_title: 'Mesto A', date: '2025-06-01' },
-        { marker_id: '2', marker_title: 'Mesto B', date: '2025-06-02' },
-        { marker_id: '3', marker_title: 'Mesto C', date: '2025-06-03' },
-        { marker_id: '4', marker_title: 'Mesto D', date: '2025-06-04' },
-        { marker_id: '5', marker_title: 'Mesto E', date: '2025-06-05' },
-        { marker_id: '6', marker_title: 'Mesto F', date: '2025-06-06' },
-        { marker_id: '7', marker_title: 'Mesto D', date: '2025-06-07' },
-        { marker_id: '8', marker_title: 'Mesto E', date: '2025-06-08' },
-        { marker_id: '9', marker_title: 'Mesto F', date: '2025-06-09' },
-        { marker_id: 'add-marker', marker_title: 'Pridať marker', isAddMarker: true },
-    ];
+    const newMarker = { marker_id: 'add-marker', marker_title: 'Upraviť markery tripu', isNew: true };
+    const markerExists = tripMarkers.some(marker => marker.marker_id === newMarker.marker_id);
+
+    if (!markerExists) {
+        tripMarkers.push(newMarker);
+    }
 
 
     const handleChoosePhoto = async (index: number) => {
@@ -94,36 +91,27 @@ const AddTrip = ({ route }: any) => {
         }
     };
 
-    const loadImageBase64 = async (image_uri: any) => {
-        try {
-            const base64Data = await FileSystem.readAsStringAsync(image_uri, {
-                encoding: FileSystem.EncodingType.Base64,
-            });
-            return 'data:image/jpeg;base64,' + base64Data;
-        } catch (error) {
-            console.error('Error converting image to base64:', error);
-        }
-    };
+
 
 
 
     const handleSubmit = async () => {
-        const formData = new FormData();
-        let success = false;
-
         /* triedenie markerov, aby sme získali start a end date tripu */
-        const sortedMarkers = [...markers]
-            .slice(0, markers.length - 1)
+        const sortedMarkers = [...tripMarkers]
+            .slice(0, tripMarkers.length - 1)
             .sort((a, b) =>
-                new Date(a.date || '').getTime() - new Date(b.date || '').getTime()
+                new Date(a.marker_date || '').getTime() - new Date(b.marker_date || '').getTime()
             );
 
 
+        if (sortedMarkers.length === 0) {
+            Alert.alert("Chyba", "Je potrebné vybrať nejaký marker.")
+            return;
+        }
 
         // Ak máme len jeden marker, start_date = end_date
-        const start = sortedMarkers[0].date;
-        const end = sortedMarkers.length === 1 ? start : sortedMarkers[sortedMarkers.length - 1].date;
-
+        const start = sortedMarkers[0].marker_date || null;
+        const end = sortedMarkers.length === 1 ? start : (sortedMarkers[sortedMarkers.length - 1].marker_date || null);
 
 
         if (!title || !description || !visibility || !rating) {
@@ -131,7 +119,7 @@ const AddTrip = ({ route }: any) => {
             return;
         }
 
-        if (markers.length < 2) {
+        if (tripMarkers.length < 2) {
             Alert.alert('Chyba', 'Musí byť zvolený aspoň jeden marker.');
             return;
         }
@@ -145,118 +133,117 @@ const AddTrip = ({ route }: any) => {
             end_date: end
         };
 
+        const filteredMarkers = tripMarkers.filter(marker => marker.marker_id !== 'add-marker');
+        const markerIds = filteredMarkers.map(marker => marker.marker_id);
+
+        let trip_id = Date.now();
+
+        if (jeOffline) {
+
+            const existingTripInfo = await SecureStore.getItemAsync('tripInfo');
+            const existingPhotos = await SecureStore.getItemAsync('tripImages');
+            const existingMarkers = await SecureStore.getItemAsync('tripMarkers');
 
 
-        const user_id = await AuthService.getUserIdFromToken();
-        let trip_id = "10";
-        try {
-            const response = await api.post(`/users/${user_id}/trip`, {tripData});
+            /* trip info */
+            const updatedTripInfo = existingTripInfo ? JSON.parse(existingTripInfo) : [];
+            updatedTripInfo.push({ trip_id, tripData });
+            await SecureStore.setItemAsync('tripInfo', JSON.stringify(updatedTripInfo));
 
-            if (response) {
-                trip_id = response.trip.trip_id;
-                success = true;
+
+            /* vložíme obrázky */
+            const updatedPhotos = existingPhotos ? JSON.parse(existingPhotos) : [];
+            updatedPhotos.push({ trip_id, photos });
+            await SecureStore.setItemAsync('tripImages', JSON.stringify(updatedPhotos));
+
+
+            /* vložíme trip_markers */
+            const updatedMarkers = existingMarkers ? JSON.parse(existingMarkers) : [];
+            updatedMarkers.push({ trip_id, markerIds });
+            await SecureStore.setItemAsync('tripMarkers', JSON.stringify(updatedMarkers));
+
+            Alert.alert("Úspech","Vytvorenie tripu bolo úspešné ");
+            navigation.goBack();
+        }
+       else {
+            const formData = new FormData();
+            let success = false;
+
+
+            const user_id = await AuthService.getUserIdFromToken();
+            try {
+                const response = await api.post(`/users/${user_id}/trip`, {tripData});
+                if (response) {
+                    trip_id = response.trip.trip_id;
+                    Alert.alert("Úspech","Vytvorenie tripu bolo úspešné ");
+                    navigation.goBack();
+                    success = true;
+                }
             }
-        }
-        catch (error) {
-            throw error;
-        }
+            catch (error) {
+                throw error;
+            }
 
 
-        if (success) {
-            if (photos && photos.length > 0) {
-
-                photos.forEach((photo, index) => {
-                    if (photo?.uri) {
-                        formData.append('images', {
-                            uri: photo.uri,
-                            type: photo.mimeType || 'image/jpeg', // Použite mimeType, ak je k dispozícii
-                            name: `photo_${index}.jpg`, // Názov súboru
-                        } as unknown as Blob);
-                    }
-                });
-
+            /* pripojíme markery */
+            if (success) {
                 try {
-                    /* nejde to cez axios, musíme fetchom */
-                    const token = await AuthService.getToken();
-                    const base_url = getBaseUrl();
-                    const response = await fetch(
-                        `${base_url}/upload-images/${user_id}/trip_images/${trip_id}`,
-                        {
-                            method: 'POST',
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-
-                            },
-                            body: formData,
-                        }
-                    );
-
+                    const response = await api.post(`/trips/${trip_id}/markers`, {marker_ids: markerIds});
 
                     if (response) {
-                        Alert.alert("Úspech","Vytvorenie tripu bolo úspešné ");
+                        success = true;
                     }
-                } catch (error) {
+                }
+                catch (error) {
                     throw error;
                 }
-
-            } else {
-                Alert.alert("Úspech","Vytvorenie tripu bolo úspešné ");
             }
-        }
+
+
+            if (success) {
+                if (photos && photos.length > 0) {
+
+                    photos.forEach((photo, index) => {
+                        if (photo?.uri) {
+                            formData.append('images', {
+                                uri: photo.uri,
+                                type: photo.mimeType || 'image/jpeg',
+                                name: `photo_${index}.jpg`,
+                            } as unknown as Blob);
+                        }
+                    });
+
+                    try {
+                        /* nejde to cez axios, musíme fetchom */
+                        const token = await AuthService.getToken();
+                        const base_url = getBaseUrl();
+                        const response = await fetch(
+                            `${base_url}/upload-images/${user_id}/trip_images/${trip_id}`,
+                            {
+                                method: 'POST',
+                                headers: {
+                                    Authorization: `Bearer ${token}`,
+
+                                },
+                                body: formData,
+                            }
+                        );
+
+                    } catch (error) {
+                        throw error;
+                    }
+
+                }
+            }
+
+       }
     };
-
-
 
 
 
     const {darkMode} = useTheme();
     const styles = getStyles(darkMode);
     const jeOffline = useOffline();
-
-
-    type Marker = {
-        marker_id: string;
-        marker_title: string;
-        date?: string;
-        isAddMarker?: boolean;
-    };
-
-    const renderItem = ({ item }: { item: Marker }) => {
-        return (
-            <TouchableOpacity
-                style={[
-                    styles.markerItem,
-                ]}
-                activeOpacity={0.7}
-                onPress={() => {
-                    if (item.isAddMarker) {
-                        navigation.navigate("Markers");
-                    }
-                }}>
-
-                <Ionicons
-                    name="location-sharp"
-                    size={37}
-
-                    color="red"
-                    style={{ marginRight: 10 }}
-                />
-
-                <Text style={styles.markerText}>{item.marker_title}</Text>
-            </TouchableOpacity>
-        );
-    };
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -266,18 +253,30 @@ const AddTrip = ({ route }: any) => {
             <Text style={styles.header}>Pridať trip</Text>
 
 
-            <View style={styles.markerContainer}>
-                {markers && markers.length > 0 ? (
-                    <FlatList
-                        data={markers}
-                        renderItem={renderItem}
-                        keyExtractor={(item) => item.marker_id}
-                        contentContainerStyle={styles.list}
+            {tripMarkers && tripMarkers.length > 0 ? (
+                <TouchableOpacity
+                    onPress={() => {
+                        navigation.navigate("Markers", {
+                            marker_ids: tripMarkers.filter(marker => marker.marker_id !== 'add-marker'),
+                        });
+                    }}
+                    style={[
+                        styles.markerItem,
+                    ]}
+                    activeOpacity={0.7}>
+
+                    <Ionicons
+                        name="location-sharp"
+                        size={37}
+
+                        color="red"
+                        style={{ marginRight: 10 }}
                     />
-                ) : (
-                    <Text style={styles.list}>Žiadne markery.</Text>
-                )}
-            </View>
+                    <Text style={styles.markerText}>Zobraziť markery tripu</Text>
+                </TouchableOpacity>
+            ) : (
+                <Text style={styles.list}>Žiadne markery.</Text>
+            )}
 
 
             {/* Predvyplnený title */}
@@ -292,7 +291,7 @@ const AddTrip = ({ route }: any) => {
 
             {/* Popis */}
             <TextInput
-                style={[styles.input, styles.descriptionInput]}
+                style={styles.descriptionInput}
                 placeholder="Popis"
                 placeholderTextColor={darkMode ? '#999' : '#888'}
                 value={description}
@@ -378,7 +377,7 @@ const getStyles = (dark: boolean) =>
             paddingHorizontal: 10,
             fontSize: 16,
             width: '100%',
-            color: dark ? '#fff' : '#000', // Opravené
+            color: dark ? '#fff' : '#000',
             backgroundColor: dark ? '#333' : '#f9f9f9',
         },
 
@@ -389,6 +388,8 @@ const getStyles = (dark: boolean) =>
             maxHeight: '100%',
             textAlignVertical: 'top',
             padding: 10,
+            marginBottom: 15,
+            borderRadius: 8,
             fontSize: 16,
             color: dark ? '#fff' : '#000',
             backgroundColor: dark ? '#333' : '#f9f9f9',
@@ -443,7 +444,7 @@ const getStyles = (dark: boolean) =>
             paddingHorizontal: 10,
             height: 60,
             marginTop: 10,
-            marginHorizontal: 5,
+            marginBottom: 15,
             borderWidth: 2,
             borderColor: dark ? '#555' : '#C3C3C3',
             backgroundColor: dark ? '#444' : '#f9f9f9',

@@ -6,6 +6,7 @@ import { AuthService } from '@/services/auth';
 import { useTheme } from './themecontext';
 import { api } from '@/api/client';
 import { useAppNavigation } from '../navigation';
+import {useOffline} from "@/context/OfflineContext";
 
 interface MyJwtPayload {
   username: string;
@@ -19,6 +20,7 @@ const Profile = () => {
   const [biography, setBiography] = useState('');
   const [id, setId] = useState('');
   const navigation = useAppNavigation();
+  const jeOffline = useOffline();
 
   const handleLogout = async () => {
     Alert.alert(
@@ -51,25 +53,27 @@ const Profile = () => {
 
   useEffect(() => {
   const fetchUser = async () => {
-    try {
-      const token = await AuthService.getToken();
-      if (token) {
-        const decoded = jwtDecode<MyJwtPayload>(token);
-        setUsername(decoded.username);
-        const userId = decoded.userId.toString();
-        setId(userId);
+    if (!jeOffline) {
+      try {
+        const token = await AuthService.getToken();
+        if (token) {
+          const decoded = jwtDecode<MyJwtPayload>(token);
+          setUsername(decoded.username);
+          const userId = decoded.userId.toString();
+          setId(userId);
 
-        // Fetch user's current biography after determining the user ID
-        const response = await api.get(`/users/${userId}`);
+          // Fetch user's current biography after determining the user ID
+          const response = await api.get(`/users/${userId}`);
 
-        if (response.bio) {
-          setBiography(response.bio);
-        } else {
-          console.warn('Biography not found in the response');
+          if (response.bio) {
+            setBiography(response.bio);
+          } else {
+            console.warn('Biography not found in the response');
+          }
         }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
       }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
     }
   };
 
@@ -83,35 +87,39 @@ const Profile = () => {
       return;
     }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: 'images',
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
+    if (!jeOffline) {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: 'images',
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      if (!result.canceled) {
+        setImage(result.assets[0].uri);
+      }
     }
   };
 
   const saveBio = async () => {
-  try {
-    if (!id) {
-      alert('User ID is not loaded yet.');
-      return;
+    if (!jeOffline) {
+      try {
+        if (!id) {
+          alert('User ID is not loaded yet.');
+          return;
+        }
+
+        const token = await AuthService.getToken();
+        if (!token) throw new Error('Token not found');
+
+        await api.put(`/users/${id}/biography`, { bio: biography });
+
+        alert('Biography updated!');
+      } catch (error: any) {
+        console.error('Error updating biography:', error?.response?.data || error.message);
+        alert('Failed to update biography');
+      }
     }
-
-    const token = await AuthService.getToken();
-    if (!token) throw new Error('Token not found');
-
-    await api.put(`/users/${id}/biography`, { bio: biography });
-
-    alert('Biography updated!');
-  } catch (error: any) {
-    console.error('Error updating biography:', error?.response?.data || error.message);
-    alert('Failed to update biography');
-  }
 };
 
   const themedStyles = getStyles(darkMode);
@@ -144,16 +152,16 @@ const Profile = () => {
       </View>
 
       <View style={themedStyles.bottomSection}>
-        <TouchableOpacity style={themedStyles.button} onPress={() => {navigation.navigate("Friends")}}>
+        <TouchableOpacity style={themedStyles.button} disabled={jeOffline}  onPress={() => {navigation.navigate("Friends")}}>
           <Text style={themedStyles.buttonText}>Friends</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={themedStyles.button} onPress={() => {navigation.navigate("Statistics")}}>
+        <TouchableOpacity style={themedStyles.button} disabled={jeOffline} onPress={() => {navigation.navigate("Statistics")}}>
           <Text style={themedStyles.buttonText}>Statistics</Text>
         </TouchableOpacity>
         <TouchableOpacity style={themedStyles.button} onPress={toggleDarkMode}>
           <Text style={themedStyles.buttonText}>{darkMode ? 'Light Mode' : 'Dark Mode'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={themedStyles.button} onPress={handleLogout} >
+        <TouchableOpacity style={themedStyles.button} disabled={jeOffline} onPress={handleLogout} >
           <Text style={themedStyles.buttonText}>Log Out</Text>
         </TouchableOpacity>
       </View>

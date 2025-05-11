@@ -20,7 +20,9 @@ const Statistics = () => {
         console.log(user_id);
 
         // Volanie API s user_id
-        const response = await api.get(`/users/${user_id}/trip`);
+        const response = await api.get(`/users/${user_id}/statistics`);
+
+        console.log(response);
 
         // Skontrolujeme, či odpoveď obsahuje pole a ak áno, nastavíme počet výletov
         if (Array.isArray(response.data)) {

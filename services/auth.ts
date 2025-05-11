@@ -81,7 +81,6 @@ export const AuthService = {
     },
 
     async getToken() {
-        console.log("token je ", await SecureStore.getItemAsync(AUTH_TOKEN_KEY));
         return await SecureStore.getItemAsync(AUTH_TOKEN_KEY);
     },
 
