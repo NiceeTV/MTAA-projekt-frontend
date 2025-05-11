@@ -17,13 +17,13 @@ export type RootStackParamList = {
   AddMarker: { latitude: number; longitude: number; name: string };
   TripImagesTest: undefined;
   AddFriend: undefined;
-  AddTrip: undefined;
+  AddTrip: { markers: MarkerData[] };
   Chat: undefined;
   Friends: undefined;
   Marker: { marker_id: string };
   Markers: undefined;
   ProfileFriend: {id: number};
-  Trip: undefined;
+  Trip: { trip_id: string };
   TripsFriend: undefined;
   StatisticsFriend: {id: number};
   Notifications: undefined;

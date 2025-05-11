@@ -17,7 +17,7 @@ const HomePage = () => {
       <View style={themedStyles.bottomHalf}>
         <Text style={themedStyles.title}>Travel Diary App</Text>
         <View style={themedStyles.form}>
-          <TouchableOpacity style={themedStyles.button} onPress={() => {}}>
+          <TouchableOpacity style={themedStyles.button} onPress={() => {navigation.navigate("Trips")}}>
             <Text style={themedStyles.buttonText}>Trips</Text>
             <FontAwesome5 name="route" size={24} color={darkMode ? '#fff' : '#000'} style={{ marginRight: 5 }} />
           </TouchableOpacity>

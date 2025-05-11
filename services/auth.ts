@@ -18,6 +18,7 @@ export const AuthService = {
     async login(username: string, password: string) {
         try {
             const response = await api.post('/users/login', { username, password });
+
             await this.saveToken(response.token); /* uložíme si jwt token */
             return true;
         } catch (error) {
@@ -80,6 +81,7 @@ export const AuthService = {
     },
 
     async getToken() {
+        console.log("token je ", await SecureStore.getItemAsync(AUTH_TOKEN_KEY));
         return await SecureStore.getItemAsync(AUTH_TOKEN_KEY);
     },
 

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, TouchableOpacity, FlatList, StyleSheet, TextInput, Button, Alert} from 'react-native';
+import {View, Text, TouchableOpacity, FlatList, StyleSheet, Alert} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {useAppNavigation} from "@/app/navigation";
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -113,7 +113,6 @@ const Markers = () => {
 
 
                     <AntDesign name="arrowright" size={27} color={darkMode ? 'white' : 'black'} />
-
                 </TouchableOpacity>
             </TouchableOpacity>
         );

@@ -12,9 +12,6 @@ const PUBLIC_ENDPOINTS = ['/users/login', '/users/register','/validate-token'];
 const apiClient = axios.create({
     baseURL: API_BASE_URL,
     timeout: 30000,
-    headers: {
-        'Content-Type': 'application/json',
-    },
 });
 
 
@@ -44,6 +41,10 @@ const ensureLoggedIn = async (endpoint: string) => {
     }
 };
 
+
+export const getBaseUrl = () => {
+    return Constants.expoConfig?.extra?.API_BASE_URL || '';
+};
 
 
 export const api = {
@@ -86,7 +87,7 @@ export const api = {
     await ensureLoggedIn(endpoint);
     try {
         const response = await apiClient.delete(endpoint, {
-            data, // This is where you pass the data in the body of the DELETE request
+            data,
         });
         console.log(endpoint);
         return response.data;

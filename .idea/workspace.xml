@@ -9,20 +9,20 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="287952f9-9174-4426-a9e8-88ccfd44a638" name="Changes" comment="podpora pre .env načítanie ip adresy do api">
-      <change afterPath="$PROJECT_DIR$/context/PermissionProvider.tsx" afterDir="false" />
+    <list default="true" id="287952f9-9174-4426-a9e8-88ccfd44a638" name="Changes" comment="optimalizácia mapy, pridávanie offline markerov aj načítanie">
       <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.expo/types/router.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/.expo/types/router.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/client.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/addmarker.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/addmarker.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/maps.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/maps.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/marker.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/marker.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/addtrip.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/addtrip.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/homescreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/homescreen.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(tabs)/markers.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/markers.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/trips.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/trips.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/navigation.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/navigation.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/services/auth.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -125,7 +125,7 @@
       <workItem from="1746642779309" duration="11475000" />
       <workItem from="1746690927062" duration="37386000" />
       <workItem from="1746774694652" duration="49898000" />
-      <workItem from="1746862618455" duration="26449000" />
+      <workItem from="1746862618455" duration="51017000" />
     </task>
     <task id="LOCAL-00001" summary="pridanie fetchovanie obrázkov z backendu, treba si pridať obrázky na backend aby to išlo a v tripimagestest.tsx zadať svoju host ip adresu rovnakú ako na backende, zobrazuje obrázky">
       <option name="closed" value="true" />
@@ -231,7 +231,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746881944168</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="optimalizácia mapy, pridávanie offline markerov aj načítanie">
+      <option name="closed" value="true" />
+      <created>1746897611170</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1746897611170</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -261,6 +269,7 @@
     <MESSAGE value="tlačidla na mape, trochu offline mapy ale ešte nejdú tak ako by som chcel, čekovanie či sme offline, príprava na offline režim" />
     <MESSAGE value="offline mapy fixed, chránené endpointy, zaručenie prihlásenia a iné features" />
     <MESSAGE value="podpora pre .env načítanie ip adresy do api" />
-    <option name="LAST_COMMIT_MESSAGE" value="podpora pre .env načítanie ip adresy do api" />
+    <MESSAGE value="optimalizácia mapy, pridávanie offline markerov aj načítanie" />
+    <option name="LAST_COMMIT_MESSAGE" value="optimalizácia mapy, pridávanie offline markerov aj načítanie" />
   </component>
 </project>
