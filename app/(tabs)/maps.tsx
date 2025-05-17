@@ -200,6 +200,8 @@ const Maps = React.memo(({ route }: any) => {
 			longitude: marker.location_y,
 		};
 
+		console.log(marker);
+
 		if (mapRef.current) {
 			mapRef.current.animateToRegion({
 				...coordinate,
@@ -680,7 +682,7 @@ const Maps = React.memo(({ route }: any) => {
 										activeOpacity={0.8}
 										style={styles.mapBtn}
 										onPress={() => {
-											Alert.alert('Chyba', 'Táto funkcia ešte nie je dostupná.');
+											navigation.navigate("Chat");
 										}}
 									>
 										<Text style={{fontSize: 20, color: darkMode ? 'white' : 'black'}}>AI</Text>
@@ -776,7 +778,7 @@ const Maps = React.memo(({ route }: any) => {
 						<TouchableOpacity
 							style={styles.button}
 							onPress={() => {
-								navigation.navigate('Markers');
+								navigation.navigate('Markers', {marker_ids: []});
 							}}
 						>
 							<Text style={styles.buttonText}>My markers</Text>

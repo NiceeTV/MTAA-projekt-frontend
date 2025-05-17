@@ -28,6 +28,7 @@ import { useTheme } from './themecontext';
 import { OfflineProvider } from '@/context/OfflineContext';
 import { AuthProvider } from '@/context/AuthProvider';
 import { LocationPermissionProvider } from '@/context/PermissionProvider';
+import { useChatStore} from '@/services/chatStore';
 
 import * as Font from 'expo-font';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -55,7 +56,7 @@ const AppNavigator = () => {
     checkLoggedInStatus();
   }, []);
 
-
+    useChatStore.getState().clearMessages();
 
 
     const [fontsLoaded, setFontsLoaded] = useState(false);
