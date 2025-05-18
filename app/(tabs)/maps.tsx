@@ -934,7 +934,6 @@ const getStyles = (dark: boolean) => StyleSheet.create({
 	mapBtnNoBorder: {
 		backgroundColor: dark ? '#555' : 'white',
 		padding: 5,
-		outline: 'black',
 		borderRadius: 0,
 		alignItems: 'center',
 		justifyContent: 'center',

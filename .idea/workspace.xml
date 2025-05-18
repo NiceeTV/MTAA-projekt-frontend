@@ -9,11 +9,16 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="287952f9-9174-4426-a9e8-88ccfd44a638" name="Changes" comment="rozpracované spracovanie tripov">
-      <change afterPath="$PROJECT_DIR$/services/chatStore.ts" afterDir="false" />
+    <list default="true" id="287952f9-9174-4426-a9e8-88ccfd44a638" name="Changes" comment="chatStore sa nepridal">
+      <change afterPath="$PROJECT_DIR$/typedoc.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(tabs)/chat.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/chat.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/maps.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/maps.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -118,7 +123,7 @@
       <workItem from="1746774694652" duration="49898000" />
       <workItem from="1746862618455" duration="51313000" />
       <workItem from="1746950330476" duration="45084000" />
-      <workItem from="1747558781845" duration="2379000" />
+      <workItem from="1747558781845" duration="7552000" />
     </task>
     <task id="LOCAL-00001" summary="pridanie fetchovanie obrázkov z backendu, treba si pridať obrázky na backend aby to išlo a v tripimagestest.tsx zadať svoju host ip adresu rovnakú ako na backende, zobrazuje obrázky">
       <option name="closed" value="true" />
@@ -256,7 +261,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747571827942</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="chatStore sa nepridal">
+      <option name="closed" value="true" />
+      <created>1747572929108</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1747572929108</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -290,6 +303,7 @@
     <MESSAGE value="moje tripy, vytvorenie tripov aj so sprostým uplodovaním obrázkov a iné features" />
     <MESSAGE value="pridanie AI asistenta, ktorý dokáže odpovedať na dotazy o zaujímavých miestach v okolí a poskytnúť nejaké fakty a zaujímavosti, ešte nie je podpora viac dňových tripov, opravené v mape button" />
     <MESSAGE value="rozpracované spracovanie tripov" />
-    <option name="LAST_COMMIT_MESSAGE" value="rozpracované spracovanie tripov" />
+    <MESSAGE value="chatStore sa nepridal" />
+    <option name="LAST_COMMIT_MESSAGE" value="chatStore sa nepridal" />
   </component>
 </project>

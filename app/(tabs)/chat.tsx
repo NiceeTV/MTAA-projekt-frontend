@@ -12,7 +12,7 @@ import {MarkerData} from "@/types/Marker";
 import {useAppNavigation} from "@/app/navigation";
 import Constants from "expo-constants";
 import { Dimensions } from 'react-native';
-import {th} from "react-native-paper-dates";
+import {th, tr} from "react-native-paper-dates";
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -46,16 +46,29 @@ const Chat = () => {
 		description: string;
 	};
 
+	type Marker = {
+		name: string;
+		description: string;
+	}
+
+	type TripDay = {
+		day: string;
+		markers: Marker[];
+	}
+
+
+
 	const parseAIResponse = (response: string) => {
 		const trimmed = response.trim(); // odstráni medzery alebo nové riadky na konci
 		const lastChar = trimmed.charAt(trimmed.length - 1);
 
+		console.log("lastChar", lastChar);
 
 		if (lastChar === '#') {
 			return "markers";
 		}
 
-		if (lastChar === '&') {
+		if (lastChar === '$') {
 			return "trips";
 		}
 
@@ -103,25 +116,36 @@ const Chat = () => {
 
 
 
-	const parseTripMarkers = (responseText: string) => {
-		const days = responseText.split(/Deň\s\d:/).filter(Boolean);
+	const parseTripMarkers = (responseText: string): TripDay[] => {
+		const days = responseText.split(/(?=Deň \d+:)/).filter(Boolean);
 
-		return days.map((dayText, index) => {
+		return days.map((dayText) => {
 			const lines = dayText.trim().split('\n').filter(Boolean);
-			const markers = [];
+			const dayLine = lines[0].trim(); // napr. "Deň 1:"
+			const day = dayLine.replace(':', '');
 
-			for (let i = 0; i < lines.length; i += 2) {
-				const nameMatch = lines[i].match(/^(.*)\s\[\d{2}\.\d+,\s\d{2}\.\d+\]$/);
-				if (!nameMatch) continue;
+			const markers: Marker[] = [];
 
-				const name = nameMatch[1].trim();
-				markers.push(name);
+			for (let i = 1; i < lines.length - 1; i++) {
+				const nameCoordLine = lines[i].trim();
+				const coordMatch = nameCoordLine.match(/^(.*?)\s*\[(-?\d+\.\d+),\s*(-?\d+\.\d+)\]$/);
+
+				if (!coordMatch) continue;
+
+				const name = coordMatch[1].trim();
+				const lat = parseFloat(coordMatch[2]);
+				const lng = parseFloat(coordMatch[3]);
+				const description = lines[i + 1]?.trim() || '';
+
+				markers.push({
+					name,
+					description,
+				});
+
+				i++; // posuň o jeden navyše, lebo sme vzali aj popis
 			}
 
-			return {
-				day: `Deň ${index + 1}`,
-				markers // zoznam názvov miest
-			};
+			return { day, markers };
 		});
 	};
 
@@ -220,6 +244,7 @@ const Chat = () => {
 			const data = await response.json();
 
 			if (data?.reply) {
+				console.log("odpoved je ", data.reply);
 				await addMessage(data.reply);
 			}
 		} catch {
@@ -239,8 +264,12 @@ const Chat = () => {
 		if (item.role === 'assistant') {
 			const lastChar = parseAIResponse(item.content);
 
+
 			if (lastChar === "markers") {
 				const places = parseMarker(item.content);
+
+				console.log(places);
+
 				if (places.length > 0) {
 					return (
 						<View style={[themedStyles.message, themedStyles.botMessage]}>
@@ -271,17 +300,67 @@ const Chat = () => {
 
 			if (lastChar === "trips") {
 				const trips = parseTripMarkers(item.content);
+				console.log(JSON.stringify(trips, null, 2));
+
+
+				if (trips.length > 0) {
+					return (
+						<View style={[themedStyles.message, themedStyles.botMessage]}>
+							{trips.map((day, index) => {
+								const isLastPlace = index === trips.length - 1;
+
+								return (
+									<View key={index} style={[!isLastPlace && themedStyles.placeCard]}>
+
+										<View style={themedStyles.placeHeader}>
+											<Text style={themedStyles.placeName}>{day.day}:</Text>
+
+											<TouchableOpacity
+												style={themedStyles.title_btn}
+												onPress={async () => {
+													const markerData: MarkerData[] = (
+														await Promise.all(
+															day.markers.map(async marker => {
+																const coords = await fetchCoordinates(marker.name);
+																if (!coords) return null;
+
+																return {
+																	marker_id: '',
+																	marker_title: marker.name,
+																	marker_description: marker.description || '',
+																	location_x: coords.lat,
+																	location_y: coords.lng,
+																};
+															})
+														)
+													).filter((m): m is MarkerData => m !== null);
+													console.log(markerData);
+												}}
+
+											>
+												<Text style={themedStyles.buttonText}>Show on map</Text>
+											</TouchableOpacity>
+										</View>
 
 
 
+										{day.markers.map((marker, i) => (
+											<View key={i}>
+												<Text style={themedStyles.tripMarkerName}>✶ {marker.name}</Text>
+												<Text style={themedStyles.tripMarkerDescription}>{marker.description}</Text>
+											</View>
+										))}
 
 
 
+									</View>
+								)
+							})}
+						</View>
+						)
 
+				}
 			}
-
-
-
 
 
 			return (
@@ -434,6 +513,17 @@ const getStyles = (dark: boolean) =>
 		placeDescription: {
 			marginTop: 4,
 			color: dark ? 'white' : 'black',
+		},
+		tripMarkerName: {
+			fontSize: 14,
+			fontWeight: 'bold',
+			flexShrink: 1,
+			marginRight: 12,
+			color: dark ? 'white' : 'black',
+		},
+		tripMarkerDescription: {
+			color: dark ? 'white' : 'black',
+			marginBottom: 10
 		},
 		title_btn: {
 			borderWidth: 1,
