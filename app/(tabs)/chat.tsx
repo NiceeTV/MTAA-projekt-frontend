@@ -12,6 +12,7 @@ import {MarkerData} from "@/types/Marker";
 import {useAppNavigation} from "@/app/navigation";
 import Constants from "expo-constants";
 import { Dimensions } from 'react-native';
+import {th} from "react-native-paper-dates";
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -269,9 +270,15 @@ const Chat = () => {
 			}
 
 			if (lastChar === "trips") {
+				const trips = parseTripMarkers(item.content);
+
+
+
+
+
+
 
 			}
-
 
 
 
