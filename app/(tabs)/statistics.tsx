@@ -4,6 +4,25 @@ import { api } from '@/api/client';
 import { AuthService } from '@/services/auth';
 import { useTheme } from './themecontext';  // Importujeme useTheme z ThemeContext
 
+/**
+ * Štatistická obrazovka zobrazujúca počet výletov používateľa.
+ * 
+ * Tento komponent:
+ * - Získava a zobrazuje počet výletov používateľa z API
+ * - Zobrazuje indikátor načítavania počas získavania údajov
+ * - Spracováva a zobrazuje chybové stavy
+ * - Prispôsobuje vzhľad podľa aktuálneho režimu (dark/light)
+ * 
+ * Hlavné funkcie:
+ * - Načítanie štatistík výletov po načítaní komponentu
+ * - Automatická aktualizácia údajov pri zmene
+ * - Zobrazenie používateľsky prívetivých chybových správ
+ * 
+ * Štýly:
+ * - Dynamické farby podľa aktuálneho režimu
+ * - Čitateľné formátovanie údajov
+ * - Responzívny dizajn pre rôzne veľkosti obrazoviek
+ */
 const Statistics = () => {
   const [tripCount, setTripCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);

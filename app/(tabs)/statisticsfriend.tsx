@@ -5,8 +5,28 @@ import { api } from '@/api/client';
 import { useTheme } from './themecontext';  // Importujeme useTheme z ThemeContext
 import { RootStackParamList } from '../navigation';
 
+/**
+ * Štatistická obrazovka priateľa
+ * 
+ * Tento komponent:
+ * - Získava a zobrazuje počet výletov priateľa podľa ID
+ * - Zobrazuje indikátor načítavania počas získavania údajov
+ * - Spracováva a zobrazuje chybové stavy
+ * - Prispôsobuje vzhľad podľa aktuálneho režimu (dark/light)
+ * 
+ * Hlavné funkcie:
+ * - Načítanie štatistík výletov priateľa po načítaní komponentu
+ * - Automatická aktualizácia údajov pri zmene
+ * - Zobrazenie používateľsky prívetivých chybových správ
+ * 
+ * Štýly:
+ * - Dynamické farby podľa aktuálneho režimu
+ * - Čitateľné formátovanie údajov
+ * - Responzívny dizajn pre rôzne veľkosti obrazoviek
+ */
+
 type StatisticsFriendRouteProp = RouteProp<RootStackParamList, 'ProfileFriend'>;
-const Statistics = () => {
+const StatisticsFriend = () => {
   const [tripCount, setTripCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -88,4 +108,4 @@ const getStyles = (dark: boolean) =>
 	},
   });
 
-export default Statistics;
+export default StatisticsFriend;

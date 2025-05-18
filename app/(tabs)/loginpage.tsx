@@ -5,6 +5,25 @@ import { AuthService } from '@/services/auth';
 import axios from "axios";
 import { useTheme } from './themecontext';
 
+/**
+ * Prihlasovacia obrazovka pre aplikáciu.
+ * 
+ * Tento komponent umožňuje:
+ * - Prihlásenie existujúceho používateľa pomocou mena a hesla
+ * - Presmerovanie na registráciu pre nových používateľov
+ * - Možnosť pokračovať ako hosť bez prihlásenia
+ * 
+ * Hlavné funkcie:
+ * - Validácia vstupných polí (username, password)
+ * - Komunikácia s AuthService pre prihlásenie
+ * - Spracovanie chybových stavov
+ * - Zobrazenie načítavacieho indikátora počas prihlasovania
+ * 
+ * Štýly:
+ * - Prispôsobenie dark/light režimu
+ * - Konzistentný dizajn s ostatnými obrazovkami
+ * - Farebné odlíšenie aktívnych a neaktívnych stavov
+ */
 const LoginPage = () => {
   const navigation = useAppNavigation();
   const [username, setUsername] = useState('');

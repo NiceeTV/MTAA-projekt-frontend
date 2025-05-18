@@ -4,6 +4,24 @@ import { useAppNavigation } from '../navigation';
 import { useTheme } from './themecontext';
 import { api } from '@/api/client';  // Importujeme useTheme z ThemeContext
 
+/**
+ * Komponent pre zobrazenie zoznamu priateľov používateľa.
+ * 
+ * Táto obrazovka umožňuje:
+ * - Zobraziť zoznam aktuálnych priateľov
+ * - Presmerovať na pridanie nového priateľa
+ * - Kliknutím na priateľa zobraziť jeho profil
+ * 
+ * Hlavné funkcie:
+ * - fetchFriends - načítanie zoznamu priateľov z API
+ * - renderFriend - renderovanie jednotlivých položiek zoznamu
+ * 
+ * Komponent obsahuje:
+ * - Nadpis "My Friends"
+ * - Tlačidlo "Add Friend" na pridanie nového priateľa
+ * - Zoznam priateľov s možnosťou kliknutia
+ * - Správu o chybe ak sa nepodarí načítať priateľov
+ */
 const Friends = () => {
   const navigation = useAppNavigation();
   const { darkMode } = useTheme();

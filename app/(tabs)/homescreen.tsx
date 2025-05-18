@@ -6,6 +6,26 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import Feather from '@expo/vector-icons/Feather';
 import { useTheme } from './themecontext';  // Importujeme useTheme z ThemeContext
 
+/**
+ * Hlavná domovská obrazovka aplikácie Travel Diary.
+ * 
+ * Tento komponent slúži ako hlavné navigačné rozhranie aplikácie a obsahuje:
+ * - Názov aplikácie "Travel Diary App"
+ * - Navigačné tlačidlá pre hlavné časti aplikácie:
+ *   * Trips - Prehľad a správa výletov
+ *   * Map - Interaktívna mapa s markermi
+ *   * Profile - Používateľský profil
+ *   * Notifications - Notifikácie
+ * 
+ * Vlastnosti:
+ * - Podpora dark/light módu s dynamickou zmenou štýlov
+ * - Intuitívne ikony pre jednotlivé sekcie
+ * - Jednoduché navigačné prepojenie na ostatné časti aplikácie
+ * 
+ * Štýly:
+ * - Všetky vizuálne prvky sa automaticky prispôsobujú aktuálne aktívnemu farebnému režimu
+ * - Konzistentný dizajn navigačných tlačidiel
+ */
 const HomePage = () => {
   const { darkMode } = useTheme();  // Používame hook na prístup k téme
   const navigation = useAppNavigation();

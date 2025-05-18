@@ -11,6 +11,21 @@ import {MarkerData} from "@/types/Marker";
 import * as SecureStore from "expo-secure-store";
 import {useOffline} from "@/context/OfflineContext";
 
+/**
+ * Komponent pre pridávanie nového markeru.
+ * 
+ * Táto obrazovka umožňuje používateľovi:
+ * - Nastaviť názov a popis markeru
+ * - Vybrať dátum spojený s markerom
+ * - Odoslať vytvorený marker
+ * 
+ * Komponent podporuje:
+ * - Online režim - odoslanie dát na server cez API
+ * - Offline režim - uloženie dát do lokálneho úložiska (SecureStore)
+ * - Automatické predvyplnenie názvu podľa GPS súradníc
+ * 
+ * Po úspešnom vytvorení markeru presmeruje používateľa späť
+ */
 const AddMarker = ({ route }: any) => {
   const navigation = useAppNavigation();
   const { latitude, longitude, name } = route.params;

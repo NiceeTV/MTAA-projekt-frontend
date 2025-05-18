@@ -10,8 +10,26 @@ import { useOffline } from '@/context/OfflineContext';
 import {addTripMarker, MarkerData} from "@/types/Marker";
 import * as SecureStore from "expo-secure-store";
 
-
-
+/**
+ * Komponent pre zobrazenie a správu používateľových markerov.
+ * 
+ * Tento komponent umožňuje:
+ * - Zobrazenie zoznamu všetkých používateľových markerov
+ * - Výber markerov pre pridanie do výletu (tripu)
+ * - Navigáciu na detail markera
+ * - Prácu v online aj offline režime
+ * 
+ * Hlavné funkcie:
+ * - Načítanie markerov z API alebo lokálneho úložiska
+ * - Možnosť výberu viacerých markerov
+ * - Pridanie vybraných markerov do existujúceho výletu
+ * - Filtrovanie markerov podľa trip_id
+ * 
+ * Štýly:
+ * - Prispôsobenie pre dark/light režim
+ * - Responzívny dizajn pre rôzne veľkosti obrazoviek
+ * - Konzistentné vizuálne prvky v celej aplikácii
+ */
 
 const Markers = ({route} : any) => {
     const navigation = useAppNavigation()

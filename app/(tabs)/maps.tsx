@@ -32,7 +32,30 @@ import { useTheme } from './themecontext';
 import Constants from 'expo-constants';
 
 
-
+/**
+ * Hlavná obrazovka mapy pre aplikáciu
+ * 
+ * Tento komponent poskytuje:
+ * - Interaktívnu mapu s možnosťou zobrazenia offline dlaždíc
+ * - Vyhľadávanie miest pomocou Google Places API
+ * - Správu a zobrazenie používateľových markerov
+ * - Navigáciu k používateľovej aktuálnej polohe
+ * - Možnosť pridávania a mazania markerov
+ * - Zobrazenie trasy medzi viacerými markermi
+ * - Prístup k AI asistentovi (Chat)
+ * 
+ * Hlavné funkcie:
+ * - Načítanie a cachovanie mapových dlaždíc pre offline režim
+ * - Získavanie a zobrazenie používateľovej polohy
+ * - Spracovanie interakcií s mapou (kliky, výber miest)
+ * - Integrácia s Google Places pre vyhľadávanie
+ * - Synchronizácia markerov s backendom/offline úložiskom
+ * 
+ * Štýly:
+ * - Prispôsobenie pre dark/light režim
+ * - Responzívny dizajn pre rôzne veľkosti obrazoviek
+ * - Konzistentné vizuálne prvky v celej aplikácii
+ */
 
 
 // Konštanta pre OpenStreetMap dlaždice

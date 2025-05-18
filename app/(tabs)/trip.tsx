@@ -13,7 +13,26 @@ import {Ionicons} from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import {MarkerData} from "@/types/Marker";
 
-
+/**
+ * Detailná obrazovka výletu
+ * 
+ * Tento komponent zobrazuje:
+ * - Základné informácie o výlete (názov, dátum, popis, hodnotenie, viditeľnosť)
+ * - Galériu fotografií výletu s možnosťou zobrazenia na celú obrazovku
+ * - Zoznam markerov priradených k výletu
+ * - Možnosť zobrazenia všetkých markerov na mape
+ * 
+ * Hlavné funkcie:
+ * - Načítanie údajov o výlete z API alebo offline úložiska
+ * - Zobrazenie fotografií výletu s možnosťou fullscreen zobrazenia
+ * - Spracovanie a zobrazenie priradených markerov
+ * - Podpora pre dark/light režim
+ * 
+ * Štýly:
+ * - Prispôsobenie pre dark/light režim
+ * - Responzívny dizajn pre rôzne veľkosti obrazoviek
+ * - Konzistentné vizuálne prvky v celej aplikácii
+ */
 
 const Trip = ({ route }: any) => {
 	const navigation = useAppNavigation();

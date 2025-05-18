@@ -1,7 +1,10 @@
 {
-  "entryPoints": ["services", "context", "app", "api"],
+  "entryPoints": ["app"],
   "entryPointStrategy": "expand",
   "out": "docs",
   "exclude": ["**/*.test.ts"],
-  "includeVersion": true
+  "includeVersion": true,
+   "excludePrivate": false,
+  "excludeProtected": false,
+  "excludeExternals": false
 }

@@ -6,6 +6,26 @@ import { api } from '@/api/client';
 import { useTheme } from './themecontext';
 import { useAppNavigation } from '../navigation';
 
+/**
+ * Profilová obrazovka priateľa
+ * 
+ * Tento komponent zobrazuje:
+ * - Profilové informácie priateľa (fotka, meno, biografia)
+ * - Možnosť zobrazenia štatistík a výletov priateľa
+ * - Funkciu na zrušenie priateľstva
+ * 
+ * Hlavné funkcie:
+ * - Načítanie profilových údajov priateľa z API
+ * - Navigácia na štatistiky a výlety priateľa
+ * - Spracovanie žiadosti o zrušenie priateľstva
+ * - Automatická aktualizácia zoznamu priateľov po zmazání
+ * 
+ * Štýly:
+ * - Prispôsobenie pre dark/light režim
+ * - Responzívny dizajn pre rôzne veľkosti obrazoviek
+ * - Konzistentné vizuálne prvky s ostatnými profilovými obrazovkami
+ */
+
 type ProfileFriendRouteProp = RouteProp<RootStackParamList, 'ProfileFriend'>;
 
 const ProfileFriend = () => {

@@ -12,7 +12,27 @@ interface MyJwtPayload {
   username: string;
   userId: number;
 }
-
+/**
+ * Profilová obrazovka používateľa
+ * 
+ * Tento komponent umožňuje:
+ * - Zobrazenie a úpravu používateľského profilu (fotka, meno, biografia)
+ * - Prepínanie medzi tmavým a svetlým režimom
+ * - Navigáciu na priateľov a štatistiky
+ * - Odhlásenie používateľa
+ * 
+ * Hlavné funkcie:
+ * - Načítanie používateľských údajov po prihlásení
+ * - Úprava profilovej fotky z galérie
+ * - Aktualizácia používateľskej biografie
+ * - Riadenie témy aplikácie (dark/light mode)
+ * - Odhlásenie s potvrdzovacím dialógom
+ * 
+ * Štýly:
+ * - Prispôsobenie pre dark/light režim
+ * - Responzívny dizajn pre rôzne veľkosti obrazoviek
+ * - Konzistentné vizuálne prvky v celej aplikácii
+ */
 const Profile = () => {
   const { darkMode, toggleDarkMode } = useTheme();
   const [username, setUsername] = useState('');

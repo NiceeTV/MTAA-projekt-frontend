@@ -36,7 +36,25 @@ import { Entypo } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
 const Stack = createStackNavigator();
 
-
+/**
+ * Hlavný navigačný komponent aplikácie Travel Diary.
+ * 
+ * Tento komponent zabezpečuje:
+ * - Riadenie navigácie medzi všetkými obrazovkami aplikácie
+ * - Autentifikáciu používateľa a smerovanie na login/register ak nie je prihlásený
+ * - Načítavanie potrebných zdrojov (fonty, ikony)
+ * - Poskytovanie kontextov pre celú aplikáciu:
+ *   * AuthProvider - správa používateľských session
+ *   * OfflineProvider - offline funkcionalita
+ *   * ThemeProvider - dark/light mód
+ *   * LocationPermissionProvider - správa povolení GPS
+ * 
+ * Hlavné funkcie:
+ * - Kontrola prihlasovacieho stavu používateľa
+ * - Dynamické smerovanie na login/register alebo hlavnú obrazovku
+ * - Konfigurácia štýlov hlavičky pre Stack navigátor
+ * - Načítavanie fontov a ikon
+ */
 
 const AppNavigator = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

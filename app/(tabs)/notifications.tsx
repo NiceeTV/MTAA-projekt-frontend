@@ -4,6 +4,27 @@ import { api } from '@/api/client';
 import { useTheme } from './themecontext';
 import {useOffline} from "@/context/OfflineContext";
 
+/**
+ * Komponent pre správu a zobrazenie používateľských notifikácií.
+ * 
+ * Tento komponent umožňuje:
+ * - Zobrazenie zoznamu prijatých notifikácií (žiadosti o priateľstvo, zdieľané výlety)
+ * - Spracovanie odpovedí na žiadosti o priateľstvo (prijatie/odmietnutie)
+ * - Načítanie údajov o odosielateľoch notifikácií
+ * - Prácu v online režime (offline režim nie je podporovaný)
+ * 
+ * Hlavné funkcie:
+ * - Načítanie notifikácií z API
+ * - Získavanie používateľských mien odosielateľov
+ * - Spracovanie odpovedí na žiadosti o priateľstvo
+ * - Automatická aktualizácia zoznamu po akciách používateľa
+ * 
+ * Štýly:
+ * - Prispôsobenie pre dark/light režim
+ * - Responzívny dizajn pre rôzne veľkosti obrazoviek
+ * - Konzistentné vizuálne prvky v celej aplikácii
+ */
+
 type Notification = {
   notification_id: number;
   sender_id: number;

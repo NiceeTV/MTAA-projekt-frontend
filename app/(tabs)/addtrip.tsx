@@ -13,8 +13,22 @@ import {Picker} from "@react-native-picker/picker";
 import {AuthService} from "@/services/auth";
 import * as SecureStore from 'expo-secure-store';
 
-
-
+/**
+ * Komponent pre pridávanie nového výletu (tripu).
+ * 
+ * Táto obrazovka umožňuje používateľovi:
+ * - Zobraziť a upraviť markery priradené k výletu
+ * - Nastaviť názov, popis a hodnotenie výletu (1-5)
+ * - Zvoliť viditeľnosť výletu (verejný/súkromný/len pre priateľov)
+ * - Nahrať až 4 fotky k výletu
+ * - Odoslať vytvorený výlet
+ * 
+ * Komponent pracuje v online aj offline režime:
+ * - V online režime odosiela data na server cez API
+ * - V offline režime ukladá data do lokálneho úložiska (SecureStore)
+ * 
+ * Po úspešnom vytvorení výletu presmeruje používateľa späť
+ */
 const AddTrip = ({ route }: any) => {
     const navigation = useAppNavigation();
     const { Markers } = route.params?.markers;

@@ -5,6 +5,25 @@ import { useAppNavigation } from '../navigation';
 import axios from 'axios';
 import { useTheme } from './themecontext';
 
+/**
+ * Registračná obrazovka pre vytvorenie nového účtu
+ * 
+ * Tento komponent umožňuje:
+ * - Vytvorenie nového používateľského účtu (username, email, heslo)
+ * - Validáciu vstupných údajov (vyplnenie všetkých polí, zhodu hesiel)
+ * - Presmerovanie na prihlasovaciu obrazovku pre existujúcich používateľov
+ * 
+ * Hlavné funkcie:
+ * - Spracovanie registračného formulára
+ * - Komunikácia s autentifikačným servisom
+ * - Zobrazenie chybových hlášok pri nevalidných údajoch
+ * - Automatické presmerovanie po úspešnej registrácii
+ * 
+ * Štýly:
+ * - Prispôsobenie pre dark/light režim
+ * - Responzívny dizajn pre rôzne veľkosti obrazoviek
+ * - Konzistentné vizuálne prvky s prihlasovacou obrazovkou
+ */
 const Register = () => {
   const navigation = useAppNavigation();
   const [username, setUsername] = useState('');

@@ -9,9 +9,25 @@ import * as SecureStore from "expo-secure-store";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import {AuthService} from "@/services/auth";
 
-
-
-
+/**
+ * Detailná obrazovka pre zobrazenie a správu markeru.
+ * 
+ * Tento komponent zobrazuje:
+ * - Podrobné informácie o konkrétnom markeri (názov, popis, dátum)
+ * - Možnosť zobrazenia markera na mape
+ * - Funkciu na vymazanie markera
+ * 
+ * Hlavné funkcie:
+ * - Načítanie dát markera podľa ID (online/offline režim)
+ * - Validácia a spracovanie údajov markera
+ * - Potvrdzovací dialóg pre vymazanie markera
+ * - Synchronizácia zmien s backendom/offline úložiskom
+ * 
+ * Štýly:
+ * - Prispôsobenie pre dark/light režim
+ * - Responzívny dizajn pre rôzne veľkosti obrazoviek
+ * - Konzistentné vizuálne prvky v celej aplikácii
+ */
 
 const Marker = ({ route }: any) => {
 	const navigation = useAppNavigation();

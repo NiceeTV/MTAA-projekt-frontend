@@ -13,6 +13,27 @@ import { useTheme } from './themecontext';
 import { api } from '@/api/client';
 import { useAppNavigation } from '../navigation';
 
+/**
+ * Komponent pre pridávanie nových priateľov.
+ * 
+ * Táto obrazovka umožňuje používateľovi:
+ * - Vyhľadávať používateľov podľa používateľského mena
+ * - Posielať žiadosti o priateľstvo nájdeným používateľom
+ * - Zobrazuje stav odosielania žiadostí
+ * 
+ * Hlavné funkcie:
+ * - searchUsers - vyhľadá používateľov na základe zadaného mena
+ * - sendFriendRequest - odosiela žiadosť o priateľstvo konkrétnemu používateľovi
+ * 
+ * Komponent obsahuje:
+ * - Vstupné pole pre vyhľadávanie
+ * - Tlačidlo pre spustenie vyhľadávania
+ * - Zoznam nájdených používateľov s možnosťou pridania
+ * - Indikátor načítavania počas vyhľadávania
+ * - Oznámenie o úspešnom/neúspešnom odoslaní žiadosti
+ * 
+ * Štýly sa prispôsobujú aktuálnemu režimu (dark/light)
+ */
 const AddFriend = () => {
   const [username, setUsername] = useState<string>(''); // Stav pre meno používateľa
   const [searchResults, setSearchResults] = useState<any[]>([]); // Stav pre výsledky hľadania

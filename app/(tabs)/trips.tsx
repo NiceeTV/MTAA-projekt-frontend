@@ -13,7 +13,27 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import {MarkerData} from "@/types/Marker";
 
 
-
+/**
+ * Hlavná obrazovka pre zobrazenie a správu výletov používateľa
+ * 
+ * Tento komponent zobrazuje:
+ * - Zoznam všetkých výletov používateľa v mriežkovom zobrazení
+ * - Možnosť vytvorenia nového výletu
+ * - Možnosť triedenia výletov (vzostupne/zostupne)
+ * - Možnosť vymazania existujúcich výletov
+ * - Podporu pre online aj offline režim
+ * 
+ * Hlavné funkcie:
+ * - Načítanie výletov z API alebo lokálneho úložiska
+ * - Zobrazenie náhľadových obrázkov výletov
+ * - Navigácia na detail výletu alebo vytvorenie nového
+ * - Synchronizácia dát medzi online a offline režimom
+ * 
+ * Štýly:
+ * - Prispôsobenie pre dark/light režim
+ * - Responzívny mriežkový dizajn
+ * - Konzistentné vizuálne prvky v celej aplikácii
+ */
 
 type Trip = {
 	trip_id: string;
