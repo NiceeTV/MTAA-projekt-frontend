@@ -1,5 +1,8 @@
 # MTAA-projekt
 
+### Generovaná TypeDoc dokumentácia z anotácií:
+Nachádza sa v priečinku /docs a potom otvoriť hociktoré .html.
+
 ### 🔐 User Management
 - [✅] Používateľ sa môže zaregistrovať  
 - [✅] Používateľ sa môže prihlásiť  
