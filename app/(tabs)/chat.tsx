@@ -45,7 +45,23 @@ const Chat = () => {
 		description: string;
 	};
 
-	const parseAIResponse = (response: string): PlaceEntry[] => {
+	const parseAIResponse = (response: string) => {
+		const trimmed = response.trim(); // odstráni medzery alebo nové riadky na konci
+		const lastChar = trimmed.charAt(trimmed.length - 1);
+
+
+		if (lastChar === '#') {
+			return "markers";
+		}
+
+		if (lastChar === '&') {
+			return "trips";
+		}
+
+	};
+
+
+	const parseMarker = (response: string): PlaceEntry[] => {
 		const entries: PlaceEntry[] = [];
 		const lines = response.trim().split('\n');
 		let current: Partial<PlaceEntry> = {};
@@ -82,7 +98,33 @@ const Chat = () => {
 		}
 
 		return entries;
+	}
+
+
+
+	const parseTripMarkers = (responseText: string) => {
+		const days = responseText.split(/Deň\s\d:/).filter(Boolean);
+
+		return days.map((dayText, index) => {
+			const lines = dayText.trim().split('\n').filter(Boolean);
+			const markers = [];
+
+			for (let i = 0; i < lines.length; i += 2) {
+				const nameMatch = lines[i].match(/^(.*)\s\[\d{2}\.\d+,\s\d{2}\.\d+\]$/);
+				if (!nameMatch) continue;
+
+				const name = nameMatch[1].trim();
+				markers.push(name);
+			}
+
+			return {
+				day: `Deň ${index + 1}`,
+				markers // zoznam názvov miest
+			};
+		});
 	};
+
+
 
 
 	const fetchCoordinates = async (placeName: string) => {
@@ -194,41 +236,55 @@ const Chat = () => {
 	/* vykreslenie správ */
 	const renderItem = ({item}: { item: Message  }) => {
 		if (item.role === 'assistant') {
-			const places = parseAIResponse(item.content);
-			if (places.length > 0) {
-				return (
-					<View style={[themedStyles.message, themedStyles.botMessage]}>
-						{places.map((place, i) => {
-							const isLastPlace = i === places.length - 1;
+			const lastChar = parseAIResponse(item.content);
 
-							return (
-								<View
-									key={i}
-									style={[!isLastPlace && themedStyles.placeCard]} // použije iba ak NIE JE posledná správa
-								>
-									<View style={themedStyles.placeHeader}>
-										<Text selectable={true} style={themedStyles.placeName}>{place.name}</Text>
-										<TouchableOpacity style={themedStyles.title_btn} onPress={() => handleShowOnMap(place)}>
-											<Text style={themedStyles.buttonText}>Ukázať na mape</Text>
-										</TouchableOpacity>
+			if (lastChar === "markers") {
+				const places = parseMarker(item.content);
+				if (places.length > 0) {
+					return (
+						<View style={[themedStyles.message, themedStyles.botMessage]}>
+							{places.map((place, i) => {
+								const isLastPlace = i === places.length - 1;
+
+								return (
+									<View
+										key={i}
+										style={[!isLastPlace && themedStyles.placeCard]} // použije iba ak NIE JE posledná správa
+									>
+										<View style={themedStyles.placeHeader}>
+											<Text selectable={true} style={themedStyles.placeName}>{place.name}</Text>
+											<TouchableOpacity style={themedStyles.title_btn} onPress={() => handleShowOnMap(place)}>
+												<Text style={themedStyles.buttonText}>Ukázať na mape</Text>
+											</TouchableOpacity>
+										</View>
+										{place.description !== '' && (
+											<Text selectable={true} style={themedStyles.placeDescription}>{place.description}</Text>
+										)}
 									</View>
-									{place.description !== '' && (
-										<Text selectable={true} style={themedStyles.placeDescription}>{place.description}</Text>
-									)}
-								</View>
-							);
-						})}
-					</View>
-				);
-			} else {
-				return (
-					<View style={[themedStyles.message, themedStyles.botMessage]}>
-						<Text selectable={true} style={themedStyles.messageText}>
-							{cleanSpecialChars(item.content)}
-						</Text>
-					</View>
-				);
+								);
+							})}
+						</View>
+					);
+				}
 			}
+
+			if (lastChar === "trips") {
+
+			}
+
+
+
+
+
+
+			return (
+				<View style={[themedStyles.message, themedStyles.botMessage]}>
+					<Text selectable={true} style={themedStyles.messageText}>
+						{cleanSpecialChars(item.content)}
+					</Text>
+				</View>
+			);
+
 		}
 
 		return (
