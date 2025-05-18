@@ -9,15 +9,72 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="287952f9-9174-4426-a9e8-88ccfd44a638" name="Changes" comment="chatStore sa nepridal">
-      <change afterPath="$PROJECT_DIR$/typedoc.json" afterDir="false" />
+    <list default="true" id="287952f9-9174-4426-a9e8-88ccfd44a638" name="Changes" comment="pridanie typedoc na dokumentáciu z anotácií">
       <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(tabs)/chat.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/chat.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(tabs)/maps.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/maps.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/assets/highlight.css" beforeDir="false" afterPath="$PROJECT_DIR$/docs/assets/highlight.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/assets/icons.js" beforeDir="false" afterPath="$PROJECT_DIR$/docs/assets/icons.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/assets/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/docs/assets/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/assets/navigation.js" beforeDir="false" afterPath="$PROJECT_DIR$/docs/assets/navigation.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/assets/search.js" beforeDir="false" afterPath="$PROJECT_DIR$/docs/assets/search.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs).default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs).default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_addfriend.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_addfriend.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_addmarker.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_addmarker.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_addtrip.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_addtrip.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_chat.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_chat.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_friends.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_friends.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_homescreen.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_homescreen.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_loginpage.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_loginpage.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_marker.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_marker.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_markers.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_markers.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_notifications.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_notifications.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_profile.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_profile.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_profilefriend.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_profilefriend.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_register.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_register.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_statistics.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_statistics.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_statisticsfriend.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_statisticsfriend.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_test.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_test.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_themecontext.ThemeProvider.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_themecontext.ThemeProvider.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_themecontext.useTheme.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_themecontext.useTheme.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_trip.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_trip.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_tripimagestest.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_tripimagestest.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_trips.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_trips.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/(tabs)_tripsfriend.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/(tabs)_tripsfriend.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/functions/navigation.useAppNavigation.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/functions/navigation.useAppNavigation.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/hierarchy.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/hierarchy.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs).html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs).html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_addfriend.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_addfriend.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_addmarker.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_addmarker.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_addtrip.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_addtrip.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_chat.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_chat.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_friends.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_friends.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_homescreen.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_homescreen.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_loginpage.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_loginpage.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_maps.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_maps.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_marker.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_marker.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_markers.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_markers.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_notifications.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_notifications.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_profile.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_profilefriend.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_profilefriend.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_register.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_register.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_statistics.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_statistics.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_statisticsfriend.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_statisticsfriend.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_test.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_test.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_themecontext.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_themecontext.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_trip.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_trip.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_tripimagestest.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_tripimagestest.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_trips.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_trips.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/(tabs)_tripsfriend.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/(tabs)_tripsfriend.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/modules/navigation.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/modules/navigation.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/types/navigation.RootStackParamList.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/types/navigation.RootStackParamList.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/variables/(tabs)_maps.default.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/variables/(tabs)_maps.default.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/chatStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/services/chatStore.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -49,7 +106,7 @@
   <component name="GithubPullRequestsUISettings"><![CDATA[{
   "selectedUrlAndAccountId": {
     "url": "https://github.com/NiceeTV/MTAA-projekt-frontend/",
-    "accountId": "c6d8e580-da2b-48eb-a910-ade7163e5f3b"
+    "accountId": "08d1e13e-ea1a-4f01-b314-3f437411463a"
   }
 }]]></component>
   <component name="MarkdownSettingsMigration">
@@ -63,28 +120,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/matze/CLionProjects/mtaa-frontend/icons&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\mtaa-front\\mtaa-frontend\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/mtaa-front/dev",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\WebStorm 2025.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\matze\CLionProjects\mtaa-frontend\icons" />
@@ -123,7 +180,7 @@
       <workItem from="1746774694652" duration="49898000" />
       <workItem from="1746862618455" duration="51313000" />
       <workItem from="1746950330476" duration="45084000" />
-      <workItem from="1747558781845" duration="7552000" />
+      <workItem from="1747558781845" duration="28528000" />
     </task>
     <task id="LOCAL-00001" summary="pridanie fetchovanie obrázkov z backendu, treba si pridať obrázky na backend aby to išlo a v tripimagestest.tsx zadať svoju host ip adresu rovnakú ako na backende, zobrazuje obrázky">
       <option name="closed" value="true" />
@@ -269,7 +326,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747572929108</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="pridanie typedoc na dokumentáciu z anotácií">
+      <option name="closed" value="true" />
+      <created>1747578707989</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1747578707989</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -304,6 +369,7 @@
     <MESSAGE value="pridanie AI asistenta, ktorý dokáže odpovedať na dotazy o zaujímavých miestach v okolí a poskytnúť nejaké fakty a zaujímavosti, ešte nie je podpora viac dňových tripov, opravené v mape button" />
     <MESSAGE value="rozpracované spracovanie tripov" />
     <MESSAGE value="chatStore sa nepridal" />
-    <option name="LAST_COMMIT_MESSAGE" value="chatStore sa nepridal" />
+    <MESSAGE value="pridanie typedoc na dokumentáciu z anotácií" />
+    <option name="LAST_COMMIT_MESSAGE" value="pridanie typedoc na dokumentáciu z anotácií" />
   </component>
 </project>

@@ -31,6 +31,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     loadMessages: async () => {
         const json = await SecureStore.getItemAsync(STORAGE_KEY);
         if (json) {
+            console.log("idem parsnut ", json);
             const parsed = JSON.parse(json) as Message[];
 
             set({ messages: parsed });

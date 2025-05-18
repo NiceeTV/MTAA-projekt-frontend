@@ -15,11 +15,8 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Entypo from '@expo/vector-icons/Entypo';
 import Feather from '@expo/vector-icons/Feather';
 
-
-
 import { useOffline } from '@/context/OfflineContext';
 import { useLocationPermission } from '@/context/PermissionProvider';
-
 
 import * as Location from 'expo-location';
 import axios from "axios";

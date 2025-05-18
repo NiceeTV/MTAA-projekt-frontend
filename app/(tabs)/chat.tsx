@@ -12,7 +12,50 @@ import {MarkerData} from "@/types/Marker";
 import {useAppNavigation} from "@/app/navigation";
 import Constants from "expo-constants";
 import { Dimensions } from 'react-native';
-import {th, tr} from "react-native-paper-dates";
+import { api } from '@/api/client';
+import { AuthService } from '@/services/auth';
+
+
+/**
+ * Popis obrazovky Chat
+ * Obrazovka Chat umožňuje užívateľovi komunikovať s AI asistentom v štýle chatovacej aplikácie. Je navrhnutá tak, aby zobrazovala históriu správ, umožňovala písať a odosielať nové správy, a tiež reagovala na špecifické odpovede asistenta zobrazovaním interaktívnych prvkov (napr. miest na mape).
+ *
+ * Hlavné funkcie a ich účel
+ * Zobrazovanie správ
+ * Používa FlatList na efektívne zobrazenie konverzácie medzi užívateľom a asistentom. Správy môžu byť od užívateľa alebo od asistenta a sú vizuálne odlíšené (farbou a zarovnaním).
+ *
+ * Odosielanie správ
+ * Textové pole na zadanie správy a tlačidlo „Odoslať“. Po stlačení sa správa odošle na backend (API) a odpoveď asistenta sa automaticky načíta a zobrazí.
+ *
+ * Spracovanie odpovedí asistenta
+ * Asistent môže vrátiť rôzne typy dát:
+ *
+ * Markers (miesta) – zobrazí zoznam miest s možnosťou otvoriť ich na mape.
+ *
+ * Trips (plány na viac dní) – zobrazí itinerár s možnosťou zobraziť všetky miesta daného dňa na mape.
+ *
+ * Správy – bežné textové odpovede bez štruktúrovaných dát.
+ *
+ * Interakcia s mapou
+ * Pri kliknutí na „Ukázať na mape“ sa naviguje na mapovú obrazovku s predanými súradnicami (jedno miesto alebo viaceré).
+ *
+ * Ukladanie a načítanie správ
+ * Používa vlastný chatStore (pravdepodobne cez Zustand alebo podobný state management) na správu stavu konverzácie.
+ *
+ * Automatické posúvanie
+ * Po pridaní novej správy alebo po otvorení klávesnice sa chat automaticky posúva na spodok, aby bol zobrazený najnovší obsah.
+ *
+ * Podpora tmavého režimu
+ * Dynamické štýly sa menia podľa toho, či je zapnutý tmavý režim, vrátane farieb pozadia, textu a okrajov.
+ *
+ * Spracovanie a validácia dát od asistenta
+ * Paruje odpovede z JSON-u, identifikuje typ odpovede (dni, marker, správa) a na základe toho upravuje zobrazenie.
+ *
+ * Získavanie geolokačných súradníc
+ * Pomocou Google Maps Geocoding API vie doplniť alebo overiť súradnice miest podľa ich názvov.
+ *
+ */
+
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -42,114 +85,48 @@ const Chat = () => {
 	type PlaceEntry = {
 		name: string;
 		lat: number;
-		lon: number;
-		description: string;
+		lng: number;
 	};
 
-	type Marker = {
-		name: string;
-		description: string;
-	}
 
 	type TripDay = {
 		day: string;
-		markers: Marker[];
+		markers: PlaceEntry[];
 	}
 
 
 
-	const parseAIResponse = (response: string) => {
-		const trimmed = response.trim(); // odstráni medzery alebo nové riadky na konci
-		const lastChar = trimmed.charAt(trimmed.length - 1);
+	function parseAIResponse(response: string): 'markers' | 'trips' | 'message' {
+		try {
 
-		console.log("lastChar", lastChar);
+			const dayKeys = Object.keys(response).filter(key => key.toLowerCase().startsWith('day'));
+			const numberOfDays = dayKeys.length;
 
-		if (lastChar === '#') {
-			return "markers";
-		}
-
-		if (lastChar === '$') {
-			return "trips";
-		}
-
-	};
-
-
-	const parseMarker = (response: string): PlaceEntry[] => {
-		const entries: PlaceEntry[] = [];
-		const lines = response.trim().split('\n');
-		let current: Partial<PlaceEntry> = {};
-
-		console.log(response);
-
-		const cleanEnd = (text: string) => text.replace(/[\s]*[$#%&]+$/, '').trim();
-
-		for (let i = 0; i < lines.length; i++) {
-			const line = lines[i].trim();
-
-			// Miesto + súradnice
-			const match = line.match(/^(.+)\s*\[(\d+\.\d+),\s*(\d+\.\d+)\]$/);
-			if (match) {
-				if (current.name) {
-					entries.push(current as PlaceEntry);
-				}
-
-				current = {
-					name: cleanEnd(match[1]),
-					lat: parseFloat(match[2]),
-					lon: parseFloat(match[3]),
-					description: '',
-				};
-			} else if (current && current.name) {
-				const cleanLine = cleanEnd(line);
-				current.description += (current.description ? ' ' : '') + cleanLine;
+			if (numberOfDays === 1) {
+				return 'markers';
+			} else if (numberOfDays > 1) {
+				return 'trips';
+			} else {
+				return 'message'; // JSON bez dní => niečo iné, považuj za message
 			}
+		} catch {
+			// Nevalidný JSON => typ 3+
+			return 'message';
 		}
-
-		if (current.name && current.description) {
-			current.description = cleanEnd(current.description);
-			entries.push(current as PlaceEntry);
-		}
-
-		return entries;
 	}
 
 
 
-	const parseTripMarkers = (responseText: string): TripDay[] => {
-		const days = responseText.split(/(?=Deň \d+:)/).filter(Boolean);
-
-		return days.map((dayText) => {
-			const lines = dayText.trim().split('\n').filter(Boolean);
-			const dayLine = lines[0].trim(); // napr. "Deň 1:"
-			const day = dayLine.replace(':', '');
-
-			const markers: Marker[] = [];
-
-			for (let i = 1; i < lines.length - 1; i++) {
-				const nameCoordLine = lines[i].trim();
-				const coordMatch = nameCoordLine.match(/^(.*?)\s*\[(-?\d+\.\d+),\s*(-?\d+\.\d+)\]$/);
-
-				if (!coordMatch) continue;
-
-				const name = coordMatch[1].trim();
-				const lat = parseFloat(coordMatch[2]);
-				const lng = parseFloat(coordMatch[3]);
-				const description = lines[i + 1]?.trim() || '';
-
-				markers.push({
-					name,
-					description,
-				});
-
-				i++; // posuň o jeden navyše, lebo sme vzali aj popis
-			}
-
-			return { day, markers };
-		});
-	};
-
-
+	function getData(data: Record<string, PlaceEntry[]>): TripDay[] {
+		return Object.entries(data)
+			.filter(([key]) => key.startsWith('day'))
+			.map(([day, markers]) => ({
+				day,
+				markers: markers.map(marker => ({
+					...marker,
+				})),
+			}));
+	}
 
 
 	const fetchCoordinates = async (placeName: string) => {
@@ -175,14 +152,13 @@ const Chat = () => {
 
 	const handleShowOnMap = async (place: PlaceEntry) => {
 		/* používa geolocation api na získanie reálnych súradníc */
-		const coords = await fetchCoordinates(place.name);
 
 		const markerData: MarkerData = {
 			marker_id: '', // prázdne, ako si chcel
 			marker_title: place.name,
-			marker_description: place.description,
-			location_x: coords ? coords.lat : place.lat,
-			location_y: coords ? coords.lng : place.lon,
+			marker_description: '',
+			location_x: place.lat,
+			location_y: place.lng,
 		};
 
 		navigation.navigate('Map', {
@@ -196,7 +172,11 @@ const Chat = () => {
 
 	/* načítanie správ pri loade */
 	useEffect(() => {
-		loadMessages();
+		const load = async () => {
+			await loadMessages();
+		}
+
+		load();
 	}, []);
 
 	useEffect(() => {
@@ -238,7 +218,7 @@ const Chat = () => {
 			const response = await fetch(`${base_url}/chat`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ messages: [...messages, userMessage] }),
+				body: JSON.stringify({ messages: [userMessage] }),
 			});
 
 			const data = await response.json();
@@ -259,37 +239,49 @@ const Chat = () => {
 
 	const cleanSpecialChars = (text: string) => text.replace(/[\s]*[#\$%&]+$/, '').trim();
 
+
 	/* vykreslenie správ */
 	const renderItem = ({item}: { item: Message  }) => {
+
 		if (item.role === 'assistant') {
-			const lastChar = parseAIResponse(item.content);
+			const type = parseAIResponse(item.content);
 
 
-			if (lastChar === "markers") {
-				const places = parseMarker(item.content);
+			if (type === "markers") {
+				let parsedData: Record<string, PlaceEntry[]>;
 
-				console.log(places);
+				if (typeof item.content === 'string') {
+					parsedData = JSON.parse(item.content);
+				} else {
+					parsedData = item.content;
+				}
 
-				if (places.length > 0) {
+				let places = getData(parsedData);
+
+				const day1Markers = places.find(entry => entry.day === "day1")?.markers || [];
+
+				const newPlaces = day1Markers;
+
+				if (newPlaces.length > 0) {
 					return (
 						<View style={[themedStyles.message, themedStyles.botMessage]}>
-							{places.map((place, i) => {
-								const isLastPlace = i === places.length - 1;
+							{newPlaces.map((place, i) => {
+								const isLastPlace = i === newPlaces.length - 1;
 
 								return (
 									<View
 										key={i}
-										style={[!isLastPlace && themedStyles.placeCard]} // použije iba ak NIE JE posledná správa
+										style={[!isLastPlace && themedStyles.placeCard]}
 									>
 										<View style={themedStyles.placeHeader}>
 											<Text selectable={true} style={themedStyles.placeName}>{place.name}</Text>
-											<TouchableOpacity style={themedStyles.title_btn} onPress={() => handleShowOnMap(place)}>
+											<TouchableOpacity
+												style={themedStyles.title_btn}
+												onPress={() => handleShowOnMap(place)}
+											>
 												<Text style={themedStyles.buttonText}>Ukázať na mape</Text>
 											</TouchableOpacity>
 										</View>
-										{place.description !== '' && (
-											<Text selectable={true} style={themedStyles.placeDescription}>{place.description}</Text>
-										)}
 									</View>
 								);
 							})}
@@ -298,79 +290,82 @@ const Chat = () => {
 				}
 			}
 
-			if (lastChar === "trips") {
-				const trips = parseTripMarkers(item.content);
-				console.log(JSON.stringify(trips, null, 2));
+			if (type === "trips") {
+				let parsedTrips: Record<string, PlaceEntry[]>;
 
+				if (typeof item.content === 'string') {
+					parsedTrips = JSON.parse(item.content);
+				} else {
+					parsedTrips = item.content;
+				}
+
+				const trips = getData(parsedTrips);
 
 				if (trips.length > 0) {
 					return (
-						<View style={[themedStyles.message, themedStyles.botMessage]}>
-							{trips.map((day, index) => {
-								const isLastPlace = index === trips.length - 1;
+					<View style={[themedStyles.message, themedStyles.botMessage]}>
+						{trips.map((day, index) => {
+							const isLast = index === trips.length - 1;
 
-								return (
-									<View key={index} style={[!isLastPlace && themedStyles.placeCard]}>
+							return (
+								<View key={index} style={[!isLast && themedStyles.placeCard]}>
 
-										<View style={themedStyles.placeHeader}>
-											<Text style={themedStyles.placeName}>{day.day}:</Text>
+									<View style={themedStyles.placeHeader}>
+										<Text style={themedStyles.placeName}>{day.day.replace(/^day(\d+)$/i, 'Day $1:')}</Text>
 
-											<TouchableOpacity
-												style={themedStyles.title_btn}
-												onPress={async () => {
-													const markerData: MarkerData[] = (
-														await Promise.all(
-															day.markers.map(async marker => {
-																const coords = await fetchCoordinates(marker.name);
-																if (!coords) return null;
-
-																return {
-																	marker_id: '',
-																	marker_title: marker.name,
-																	marker_description: marker.description || '',
-																	location_x: coords.lat,
-																	location_y: coords.lng,
-																};
-															})
-														)
-													).filter((m): m is MarkerData => m !== null);
-													console.log(markerData);
-												}}
-
-											>
-												<Text style={themedStyles.buttonText}>Show on map</Text>
-											</TouchableOpacity>
-										</View>
+										<TouchableOpacity
+											style={themedStyles.title_btn}
+											onPress={() => {
+												const markerData: MarkerData[] = day.markers
+													.map(marker => {
+														if (marker.lat != null && marker.lng != null) {
+															return {
+																marker_id: "",
+																marker_title: marker.name,
+																marker_description: '',
+																location_x: marker.lat,
+																location_y: marker.lng,
+															};
+														}
+														return null;
+													})
+													.filter((m): m is MarkerData => m !== null);
 
 
-
-										{day.markers.map((marker, i) => (
-											<View key={i}>
-												<Text style={themedStyles.tripMarkerName}>✶ {marker.name}</Text>
-												<Text style={themedStyles.tripMarkerDescription}>{marker.description}</Text>
-											</View>
-										))}
-
-
-
+												navigation.navigate('Map', {
+													type: 'multiple',
+													markers: markerData,
+												});
+											}}
+										>
+											<Text style={themedStyles.buttonText}>Zobraziť na mape</Text>
+										</TouchableOpacity>
 									</View>
-								)
-							})}
-						</View>
-						)
 
-				}
+
+									{day.markers.map((marker, i) => (
+										<View key={i}>
+											<Text style={themedStyles.tripMarkerName}>✶ {marker.name}</Text>
+										</View>
+									))}
+								</View>
+							);
+						})}
+
+					</View>
+				)}
+
 			}
 
-
-			return (
-				<View style={[themedStyles.message, themedStyles.botMessage]}>
-					<Text selectable={true} style={themedStyles.messageText}>
-						{cleanSpecialChars(item.content)}
-					</Text>
-				</View>
-			);
-
+			if (type === "message") {
+				return (
+					<View style={[themedStyles.message, themedStyles.botMessage]}>
+						<Text selectable={true} style={themedStyles.messageText}>
+							{cleanSpecialChars(item.content)}
+						</Text>
+					</View>
+				);
+			}
 		}
 
 		return (

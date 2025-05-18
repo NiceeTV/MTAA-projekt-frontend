@@ -74,7 +74,15 @@ const AppNavigator = () => {
     checkLoggedInStatus();
   }, []);
 
-    useChatStore.getState().clearMessages();
+    useEffect(() => {
+        const clearMessages = async () => {
+            await useChatStore.getState().clearMessages();
+            await useChatStore.getState().loadMessages();
+        }
+
+        clearMessages();
+    }, []);
+
 
 
     const [fontsLoaded, setFontsLoaded] = useState(false);
